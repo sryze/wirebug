@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Wirebug</string>
+    <string name="adb_connect">To start debugging run \'adb connect %s\' on your development machine.</string>
+</resources>
