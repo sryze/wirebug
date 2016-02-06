@@ -1,6 +1,7 @@
 Wirebug
 -------
 
-Enable or disable Wi-Fi debugging on Android without a USB cable in a single tap.
+Enable or disable Wi-Fi debugging on Android from within the device (i.e.
+without connecting to it via USB) in a single tap.
 
 ![Screenshot](screenshot.png)
