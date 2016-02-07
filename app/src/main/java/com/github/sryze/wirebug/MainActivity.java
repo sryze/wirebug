@@ -82,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
         String port = isEnabled ? ADB_TCP_PORT_DEFAULT : ADB_TCP_PORT_DISABLED;
         try {
             Runtime.getRuntime().exec("setprop " + ADB_TCP_PORT_PROPERTY + " " + port);
+            Runtime.getRuntime().exec("stop adbd");
+            Runtime.getRuntime().exec("start adbd");
             Log.i(TAG, "Debugging over TCP is enabled: " + (isEnabled ? "YES" : "NO"));
         } catch (IOException e) {
             Log.e(TAG, "Error executing setprop: " + e.getMessage());
