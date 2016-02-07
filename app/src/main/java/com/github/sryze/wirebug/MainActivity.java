@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
             String command = "getprop " + ADB_TCP_PORT_PROPERTY;
             InputStream inputStream = Runtime.getRuntime().exec(command).getInputStream();
             String port = new BufferedReader(new InputStreamReader(inputStream)).readLine();
-            return !port.equals(ADB_TCP_PORT_DISABLED);
+            return !port.isEmpty() && !port.equals(ADB_TCP_PORT_DISABLED);
         } catch (IOException e) {
             Log.e(TAG, "Error executing getprop: " + e.getMessage());
             return false;
