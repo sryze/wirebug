@@ -36,8 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private static final String ADB_TCP_PORT_PROPERTY = "service.adb.tcp.port";
-    private static final String ADB_TCP_PORT_DISABLED = "-1";
-    private static final String ADB_TCP_PORT_DEFAULT = "5555";
+    private static final int ADB_TCP_PORT_DEFAULT = 5555;
 
     private Switch wifiDebuggingSwitch;
     private TextView adbConnectTextView;
@@ -66,28 +65,56 @@ public class MainActivity extends AppCompatActivity {
         wifiDebuggingSwitch.setChecked(isWifiDebuggingEnabled());
     }
 
-    private static boolean isWifiDebuggingEnabled() {
+    private static int getAdbTcpPort() {
         try {
-            String command = "getprop " + ADB_TCP_PORT_PROPERTY;
-            InputStream inputStream = Runtime.getRuntime().exec(command).getInputStream();
-            String port = new BufferedReader(new InputStreamReader(inputStream)).readLine();
-            return !port.isEmpty() && !port.equals(ADB_TCP_PORT_DISABLED);
+            String[] command = new String[] {"getprop", ADB_TCP_PORT_PROPERTY};
+            Process process = Runtime.getRuntime().exec(command);
+            String output = new BufferedReader(
+                    new InputStreamReader(process.getInputStream())).readLine();
+            Log.d(TAG, "getprop output: " + output);
+            return Integer.parseInt(output);
         } catch (IOException e) {
             Log.e(TAG, "Error executing getprop: " + e.getMessage());
-            return false;
+        } catch (NumberFormatException e) {
+            // OK
         }
+        return 0;
     }
 
-    private static void setWifiDebuggingEnabled(boolean isEnabled) {
-        String port = isEnabled ? ADB_TCP_PORT_DEFAULT : ADB_TCP_PORT_DISABLED;
+    private static void setAdbTcpPort(int portNumber) {
         try {
-            Runtime.getRuntime().exec("setprop " + ADB_TCP_PORT_PROPERTY + " " + port);
-            Runtime.getRuntime().exec("stop adbd");
-            Runtime.getRuntime().exec("start adbd");
-            Log.i(TAG, "Debugging over TCP is enabled: " + (isEnabled ? "YES" : "NO"));
+            String[] command = new String[] {
+                "setprop",
+                ADB_TCP_PORT_PROPERTY,
+                portNumber > 0 ? String.format("%d", portNumber) : ""
+            };
+            Process process = Runtime.getRuntime().exec(command);
+            String output = new BufferedReader(
+                    new InputStreamReader(process.getInputStream())).readLine();
+            Log.d(TAG, "setprop output: " + output);
         } catch (IOException e) {
             Log.e(TAG, "Error executing setprop: " + e.getMessage());
         }
+    }
+
+    private static void restartAdbDaemon() {
+        try {
+            Runtime.getRuntime().exec("stop adbd");
+            Runtime.getRuntime().exec("start adbd");
+        } catch (IOException e) {
+            Log.e(TAG, "Error restarting ADB daemon: " + e.getMessage());
+        }
+    }
+
+    private static boolean isWifiDebuggingEnabled() {
+        return getAdbTcpPort() > 0;
+    }
+
+    private static void setWifiDebuggingEnabled(boolean isEnabled) {
+        setAdbTcpPort(isEnabled ? ADB_TCP_PORT_DEFAULT : 0);
+        Log.i(TAG, "Debugging over TCP is enabled: " + (isEnabled ? "YES" : "NO"));
+        Log.i(TAG, "Restarting ADB daemon (this will kill your debugging session");
+        restartAdbDaemon();
     }
 
     private static String getStringFromIpAddress(int ipAddress) {
