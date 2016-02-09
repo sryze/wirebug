@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Wirebug</string>
+    <string name="enable_debugging">Enable debugging over Wi-Fi</string>
     <string name="adb_connect">To start debugging run \'adb connect %s\' on your development machine.</string>
 </resources>

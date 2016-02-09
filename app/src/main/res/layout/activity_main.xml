@@ -17,7 +17,7 @@
             android:id="@+id/switch_wifi_debugging"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Enable debugging over Wi-Fi" />
+            android:text="@string/enable_debugging" />
         <TextView
             android:id="@+id/text_adb_connect"
             android:layout_width="wrap_content"
