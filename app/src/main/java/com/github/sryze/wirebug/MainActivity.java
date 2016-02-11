@@ -21,6 +21,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.widget.CompoundButton;
 import android.widget.Switch;
@@ -55,8 +56,10 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setWifiDebuggingEnabled(isChecked);
                 if (isChecked) {
-                    adbConnectTextView.setText(
-                            String.format(getString(R.string.adb_connect), getWifiIpAddress()));
+                    String command = String.format("<strong>adb connect %s</strong>",
+                            getWifiIpAddress());
+                    String text = String.format(getString(R.string.adb_connect), command);
+                    adbConnectTextView.setText(Html.fromHtml(text));
                 } else {
                     adbConnectTextView.setText(null);
                 }
