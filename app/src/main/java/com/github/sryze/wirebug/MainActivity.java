@@ -23,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -40,32 +41,44 @@ public class MainActivity extends AppCompatActivity {
     private static final int ADB_TCP_PORT_DEFAULT = 5555;
 
     private Switch wifiDebuggingSwitch;
-    private TextView adbConnectTextView;
+    private TextView connectHintTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        adbConnectTextView = (TextView) findViewById(R.id.text_adb_connect);
-        adbConnectTextView.setText(null);
+        boolean isEnabled = isWifiDebuggingEnabled();
+        connectHintTextView = (TextView) findViewById(R.id.text_connect_hint);
+        updateConnectHint(isEnabled);
 
         wifiDebuggingSwitch = (Switch) findViewById(R.id.switch_wifi_debugging);
+        wifiDebuggingSwitch.setChecked(isEnabled);
         wifiDebuggingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setWifiDebuggingEnabled(isChecked);
-                if (isChecked) {
-                    String command = String.format("<strong>adb connect %s</strong>",
-                            getWifiIpAddress());
-                    String text = String.format(getString(R.string.adb_connect), command);
-                    adbConnectTextView.setText(Html.fromHtml(text));
-                } else {
-                    adbConnectTextView.setText(null);
-                }
+                updateConnectHint(isChecked);
             }
         });
-        wifiDebuggingSwitch.setChecked(isWifiDebuggingEnabled());
+    }
+
+    private void updateConnectHint(boolean isVisible) {
+        if (isVisible) {
+            String command = String.format("<strong>adb connect %s</strong>",
+                    getWifiIpAddress());
+            String text = String.format(getString(R.string.adb_connect), command);
+            connectHintTextView.setText(Html.fromHtml(text));
+        } else {
+            connectHintTextView.setText(null);
+        }
+        connectHintTextView.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    private String getWifiIpAddress() {
+        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        return getStringFromIpAddress(wifiInfo.getIpAddress());
     }
 
     private static int getAdbTcpPort() {
@@ -114,8 +127,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static void setWifiDebuggingEnabled(boolean isEnabled) {
-        setAdbTcpPort(isEnabled ? ADB_TCP_PORT_DEFAULT : 0);
         Log.i(TAG, "Debugging over TCP is enabled: " + (isEnabled ? "YES" : "NO"));
+        setAdbTcpPort(isEnabled ? ADB_TCP_PORT_DEFAULT : 0);
         Log.i(TAG, "Restarting ADB daemon (this will kill your debugging session");
         restartAdbDaemon();
     }
@@ -123,11 +136,5 @@ public class MainActivity extends AppCompatActivity {
     private static String getStringFromIpAddress(int ipAddress) {
         return String.format("%d.%d.%d.%d", ipAddress & 0xFF, (ipAddress >> 8) & 0xFF,
                 (ipAddress >> 16) & 0xFF, (ipAddress >> 24) & 0xFF);
-    }
-
-    private String getWifiIpAddress() {
-        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        return getStringFromIpAddress(wifiInfo.getIpAddress());
     }
 }
