@@ -41,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int ADB_TCP_PORT_DEFAULT = 5555;
 
     private Switch wifiDebuggingSwitch;
-    private TextView connectHintTextView;
+    private View instructionsView;
+    private TextView commandTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +50,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         boolean isEnabled = isWifiDebuggingEnabled();
-        connectHintTextView = (TextView) findViewById(R.id.text_connect_hint);
-        updateConnectHint(isEnabled);
+        instructionsView = findViewById(R.id.view_instructions);
+        commandTextView = (TextView) findViewById(R.id.text_command);
+        updateInstructions(isEnabled);
 
         wifiDebuggingSwitch = (Switch) findViewById(R.id.switch_wifi_debugging);
         wifiDebuggingSwitch.setChecked(isEnabled);
@@ -58,21 +60,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setWifiDebuggingEnabled(isChecked);
-                updateConnectHint(isChecked);
+                updateInstructions(isChecked);
             }
         });
     }
 
-    private void updateConnectHint(boolean isVisible) {
+    private void updateInstructions(boolean isVisible) {
         if (isVisible) {
-            String command = String.format("<strong>adb connect %s</strong>",
-                    getWifiIpAddress());
-            String text = String.format(getString(R.string.adb_connect), command);
-            connectHintTextView.setText(Html.fromHtml(text));
+            String command = String.format("adb connect %s", getWifiIpAddress());
+            commandTextView.setText(command);
         } else {
-            connectHintTextView.setText(null);
+            commandTextView.setText(null);
         }
-        connectHintTextView.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
+        instructionsView.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
     private String getWifiIpAddress() {

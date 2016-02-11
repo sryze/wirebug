@@ -18,12 +18,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/enable_debugging" />
-        <TextView
-            android:id="@+id/text_connect_hint"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/view_instructions"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/adb_connect"
-            tools:text="To start debugging run 'adb connect 192.168.1.123' on your development machine."/>
+            android:layout_marginTop="16dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/run_command" />
+            <TextView
+                android:id="@+id/text_command"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:gravity="center"
+                android:typeface="monospace"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                tools:text="adb connect 192.168.1.100" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/good_luck" />
+        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>
