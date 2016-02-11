@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
     private static void setWifiDebuggingEnabled(boolean isEnabled) {
         Log.i(TAG, "Debugging over TCP is enabled: " + (isEnabled ? "YES" : "NO"));
         setAdbTcpPort(isEnabled ? ADB_TCP_PORT_DEFAULT : 0);
-        Log.i(TAG, "Restarting ADB daemon (this will kill your debugging session");
+        Log.i(TAG, "Restarting ADB daemon (this will kill your debugging session)");
         restartAdbDaemon();
     }
 
