@@ -17,6 +17,11 @@
 
 package com.github.sryze.wirebug;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -61,15 +66,25 @@ public class MainActivity extends AppCompatActivity {
                 updateInstructions(isChecked);
             }
         });
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.net.wifi.STATE_CHANGE");
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                updateIpAddress();
+            }
+        }, intentFilter);
+    }
+
+    private void updateIpAddress() {
+        String command = String.format("adb connect %s", getWifiIpAddress());
+        commandTextView.setText(command);
     }
 
     private void updateInstructions(boolean isVisible) {
-        if (isVisible) {
-            String command = String.format("adb connect %s", getWifiIpAddress());
-            commandTextView.setText(command);
-        } else {
-            commandTextView.setText(null);
-        }
+        updateIpAddress();
         instructionsView.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
