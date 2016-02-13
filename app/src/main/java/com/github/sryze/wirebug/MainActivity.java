@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private Switch wifiDebuggingSwitch;
     private View instructionsView;
     private TextView commandTextView;
+    private View notConnectedView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
         instructionsView = findViewById(R.id.view_instructions);
         commandTextView = (TextView) findViewById(R.id.text_command);
         updateInstructions(isEnabled);
+
+        notConnectedView = findViewById(R.id.view_not_connected);
+        notConnectedView.setVisibility(View.INVISIBLE);
 
         wifiDebuggingSwitch = (Switch) findViewById(R.id.switch_wifi_debugging);
         wifiDebuggingSwitch.setChecked(isEnabled);
@@ -76,12 +80,12 @@ public class MainActivity extends AppCompatActivity {
                 NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 switch (networkInfo.getState()) {
                     case CONNECTED:
-                        Toast.makeText(MainActivity.this, "Connected to Wi-Fi",
-                                Toast.LENGTH_SHORT).show();
+                        instructionsView.setVisibility(View.VISIBLE);
+                        notConnectedView.setVisibility(View.INVISIBLE);
                         break;
                     case DISCONNECTED:
-                        Toast.makeText(MainActivity.this, "Disconnected from Wi-Fi",
-                                Toast.LENGTH_SHORT).show();
+                        instructionsView.setVisibility(View.GONE);
+                        notConnectedView.setVisibility(View.VISIBLE);
                         break;
                 }
                 updateIpAddress();

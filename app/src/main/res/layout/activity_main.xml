@@ -9,15 +9,18 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.github.sryze.wirebug.MainActivity">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <Switch
             android:id="@+id/switch_wifi_debugging"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/enable_debugging" />
+
         <LinearLayout
             android:id="@+id/view_instructions"
             android:orientation="vertical"
@@ -44,5 +47,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/good_luck" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/view_not_connected"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/not_connected" />
     </LinearLayout>
 </RelativeLayout>
