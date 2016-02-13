@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -31,7 +32,6 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int ADB_TCP_PORT_DEFAULT = 5555;
 
     private Switch wifiDebuggingSwitch;
+    private View connectedView;
     private View instructionsView;
     private TextView commandTextView;
     private View notConnectedView;
@@ -54,13 +55,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        boolean isEnabled = isWifiDebuggingEnabled();
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        boolean isConnected = networkInfo.isConnected();
+
+        connectedView = findViewById(R.id.view_connected);
+        connectedView.setVisibility(isConnected ? View.VISIBLE : View.GONE);
+
         instructionsView = findViewById(R.id.view_instructions);
+        instructionsView.setVisibility(View.INVISIBLE);
+
         commandTextView = (TextView) findViewById(R.id.text_command);
-        updateInstructions(isEnabled);
 
         notConnectedView = findViewById(R.id.view_not_connected);
         notConnectedView.setVisibility(View.INVISIBLE);
+
+        boolean isEnabled = isWifiDebuggingEnabled();
+        updateInstructions(isEnabled);
 
         wifiDebuggingSwitch = (Switch) findViewById(R.id.switch_wifi_debugging);
         wifiDebuggingSwitch.setChecked(isEnabled);
@@ -80,11 +92,11 @@ public class MainActivity extends AppCompatActivity {
                 NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 switch (networkInfo.getState()) {
                     case CONNECTED:
-                        instructionsView.setVisibility(View.VISIBLE);
+                        connectedView.setVisibility(View.VISIBLE);
                         notConnectedView.setVisibility(View.INVISIBLE);
                         break;
                     case DISCONNECTED:
-                        instructionsView.setVisibility(View.GONE);
+                        connectedView.setVisibility(View.GONE);
                         notConnectedView.setVisibility(View.VISIBLE);
                         break;
                 }

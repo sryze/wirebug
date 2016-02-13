@@ -21,32 +21,37 @@
             android:layout_height="wrap_content"
             android:text="@string/enable_debugging" />
 
-        <LinearLayout
-            android:id="@+id/view_instructions"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp">
-            <TextView
+        <RelativeLayout
+            android:id="@+id/view_connected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/view_instructions"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/run_command" />
-            <TextView
-                android:id="@+id/text_command"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="24dp"
-                android:gravity="center"
-                android:typeface="monospace"
-                android:textSize="18dp"
-                android:textStyle="bold"
-                tools:text="adb connect 192.168.1.100" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/good_luck" />
-        </LinearLayout>
+                android:layout_marginTop="16dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/run_command" />
+                <TextView
+                    android:id="@+id/text_command"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="24dp"
+                    android:gravity="center"
+                    android:typeface="monospace"
+                    android:textSize="18dp"
+                    android:textStyle="bold"
+                    tools:text="adb connect 192.168.1.100" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/good_luck" />
+            </LinearLayout>
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/view_not_connected"
