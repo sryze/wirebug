@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -68,10 +70,20 @@ public class MainActivity extends AppCompatActivity {
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("android.net.wifi.STATE_CHANGE");
-        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                switch (networkInfo.getState()) {
+                    case CONNECTED:
+                        Toast.makeText(MainActivity.this, "Connected to Wi-Fi",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                    case DISCONNECTED:
+                        Toast.makeText(MainActivity.this, "Disconnected from Wi-Fi",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                }
                 updateIpAddress();
             }
         }, intentFilter);
