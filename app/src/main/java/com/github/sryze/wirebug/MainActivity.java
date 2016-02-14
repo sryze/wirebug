@@ -177,11 +177,12 @@ public class MainActivity extends AppCompatActivity {
         try {
             String[] command = new String[] {"getprop", ADB_TCP_PORT_PROPERTY};
             Process process = Runtime.getRuntime().exec(command);
+            process.waitFor();
             String output = new BufferedReader(
                     new InputStreamReader(process.getInputStream())).readLine();
             Log.d(TAG, "getprop output: " + output);
             return Integer.parseInt(output);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             Log.e(TAG, "Error executing getprop: " + e.getMessage());
         } catch (NumberFormatException e) {
             // OK
@@ -197,10 +198,11 @@ public class MainActivity extends AppCompatActivity {
                 portNumber > 0 ? String.format("%d", portNumber) : ""
             };
             Process process = Runtime.getRuntime().exec(command);
+            process.waitFor();
             String output = new BufferedReader(
                     new InputStreamReader(process.getInputStream())).readLine();
             Log.d(TAG, "setprop output: " + output);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             Log.e(TAG, "Error executing setprop: " + e.getMessage());
         }
     }
