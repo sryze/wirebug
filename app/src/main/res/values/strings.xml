@@ -4,4 +4,5 @@
     <string name="run_command">To connect to this device run the following command on your development machine:</string>
     <string name="good_luck">Good luck!</string>
     <string name="not_connected">You are not connected to a Wi-Fi network.</string>
+    <string name="disable_on_lock">Automatically disable debugging on screen lock</string>
 </resources>

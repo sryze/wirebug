@@ -17,10 +17,12 @@
 
 package com.github.sryze.wirebug;
 
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -28,6 +30,9 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
@@ -84,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("android.net.wifi.STATE_CHANGE");
+        IntentFilter wifiIntentFilter = new IntentFilter();
+        wifiIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -102,7 +107,44 @@ public class MainActivity extends AppCompatActivity {
                 }
                 updateIpAddress();
             }
-        }, intentFilter);
+        }, wifiIntentFilter);
+
+        IntentFilter screenIntentFilter = new IntentFilter();
+        screenIntentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                KeyguardManager keyguardManager =
+                        (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+                if (keyguardManager.inKeyguardRestrictedInputMode()) {
+                    SharedPreferences preferences =
+                            getSharedPreferences("Settings", MODE_PRIVATE);
+                    if (preferences.getBoolean("disable_on_lock", false)) {
+                        setWifiDebuggingEnabled(false);
+                        wifiDebuggingSwitch.setChecked(false);
+                        updateInstructions(false);
+                    }
+                }
+            }
+        }, screenIntentFilter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = new MenuInflater(this);
+        menuInflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void updateIpAddress() {
