@@ -173,10 +173,17 @@ public class MainActivity extends AppCompatActivity {
         return getStringFromIpAddress(wifiInfo.getIpAddress());
     }
 
+    private static String getStringFromIpAddress(int ipAddress) {
+        return String.format("%d.%d.%d.%d", ipAddress & 0xFF, (ipAddress >> 8) & 0xFF,
+                (ipAddress >> 16) & 0xFF, (ipAddress >> 24) & 0xFF);
+    }
+
     private static int getAdbTcpPort() {
         try {
-            String[] command = new String[] {"getprop", ADB_TCP_PORT_PROPERTY};
-            Process process = Runtime.getRuntime().exec(command);
+            Process process = Runtime.getRuntime().exec(new String[] {
+                "getprop",
+                ADB_TCP_PORT_PROPERTY
+            });
             process.waitFor();
             String output = new BufferedReader(
                     new InputStreamReader(process.getInputStream())).readLine();
@@ -190,45 +197,43 @@ public class MainActivity extends AppCompatActivity {
         return 0;
     }
 
-    private static void setAdbTcpPort(int portNumber) {
-        try {
-            String[] command = new String[] {
-                "setprop",
-                ADB_TCP_PORT_PROPERTY,
-                portNumber > 0 ? String.format("%d", portNumber) : ""
-            };
-            Process process = Runtime.getRuntime().exec(command);
-            process.waitFor();
-            String output = new BufferedReader(
-                    new InputStreamReader(process.getInputStream())).readLine();
-            Log.d(TAG, "setprop output: " + output);
-        } catch (IOException | InterruptedException e) {
-            Log.e(TAG, "Error executing setprop: " + e.getMessage());
-        }
-    }
-
-    private static void restartAdbDaemon() {
-        try {
-            Runtime.getRuntime().exec("stop adbd");
-            Runtime.getRuntime().exec("start adbd");
-        } catch (IOException e) {
-            Log.e(TAG, "Error restarting ADB daemon: " + e.getMessage());
-        }
-    }
-
     private static boolean isWifiDebuggingEnabled() {
         return getAdbTcpPort() > 0;
     }
 
     private static void setWifiDebuggingEnabled(boolean isEnabled) {
-        Log.i(TAG, "Debugging over TCP is enabled: " + (isEnabled ? "YES" : "NO"));
-        setAdbTcpPort(isEnabled ? ADB_TCP_PORT_DEFAULT : 0);
-        Log.i(TAG, "Restarting ADB daemon (this will kill your debugging session)");
-        restartAdbDaemon();
+        if (setAdbTcpPort(isEnabled ? ADB_TCP_PORT_DEFAULT : 0)) {
+            Log.i(TAG, "Debugging over TCP is enabled: " + (isEnabled ? "YES" : "NO"));
+            Log.i(TAG, "Restarting ADB daemon (this will kill your debugging session)");
+            restartAdbDaemon();
+        }
     }
 
-    private static String getStringFromIpAddress(int ipAddress) {
-        return String.format("%d.%d.%d.%d", ipAddress & 0xFF, (ipAddress >> 8) & 0xFF,
-                (ipAddress >> 16) & 0xFF, (ipAddress >> 24) & 0xFF);
+    private static boolean setAdbTcpPort(int port) {
+        try {
+            String portArg = port > 0 ? String.format("%d", port) : "\"\"";
+            String[] args = new String[] {
+                "su",
+                "-c",
+                "setprop " + ADB_TCP_PORT_PROPERTY + " " + portArg
+            };
+            Process process = Runtime.getRuntime().exec(args);
+            process.waitFor();
+            String output = new BufferedReader(
+                    new InputStreamReader(process.getInputStream())).readLine();
+            Log.d(TAG, "setprop output: " + output);
+            return true;
+        } catch (IOException | InterruptedException e) {
+            Log.e(TAG, "Error executing setprop: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private static void restartAdbDaemon() {
+        try {
+            Runtime.getRuntime().exec("su -c \"stop adbd; start adbd\"");
+        } catch (IOException e) {
+            Log.e(TAG, "Error restarting ADB daemon: " + e.getMessage());
+        }
     }
 }
