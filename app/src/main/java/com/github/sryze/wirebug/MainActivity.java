@@ -37,6 +37,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -85,7 +86,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setWifiDebuggingEnabled(isChecked);
-                updateInstructions(isChecked);
+                boolean isActuallyEnabled = isWifiDebuggingEnabled();
+                if (isChecked == isActuallyEnabled) {
+                    updateInstructions(isChecked);
+                } else {
+                    String toastText = isChecked
+                            ? getString(R.string.could_not_enable)
+                            : getString(R.string.could_not_disable);
+                    Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
+                    wifiDebuggingSwitch.setChecked(isActuallyEnabled);
+                }
             }
         });
 

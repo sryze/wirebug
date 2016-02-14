@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Wirebug</string>
     <string name="enable_debugging">Enable debugging over Wi-Fi</string>
+    <string name="could_not_enable">Could not enable Wi-Fi debugging</string>
+    <string name="could_not_disable">Could not disable Wi-Fi debugging</string>
     <string name="run_command">To connect to this device run the following command on your development machine:</string>
     <string name="good_luck">Good luck!</string>
     <string name="not_connected">You are not connected to a Wi-Fi network.</string>
