@@ -117,8 +117,7 @@ public class MainActivity extends AppCompatActivity {
                         notConnectedView.setVisibility(View.VISIBLE);
                         break;
                 }
-                updateWifiIpAddress();
-                updateWifiNetworkName();
+                updateWifiInfo();
             }
         }, wifiIntentFilter);
 
@@ -160,32 +159,22 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateWifiNetworkName() {
-        String text = String.format(getString(R.string.wifi_network), getWifiNetworkName());
-        wifiNetworkTextView.setText(text);
-    }
+    private void updateWifiInfo() {
+        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 
-    private void updateWifiIpAddress() {
-        String command = String.format("adb connect %s", getWifiIpAddress());
-        connectCommandTextView.setText(command);
+        int ipAddress = wifiInfo.getIpAddress();
+        connectCommandTextView.setText(
+                String.format("adb connect %s", getStringFromIpAddress(ipAddress)));
+
+        String ssid = wifiInfo.getSSID();
+        wifiNetworkTextView.setText(
+                String.format(getString(R.string.wifi_network), ssid));
     }
 
     private void updateInstructions(boolean isVisible) {
-        updateWifiNetworkName();
-        updateWifiIpAddress();
+        updateWifiInfo();
         instructionsView.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
-    }
-
-    private String getWifiIpAddress() {
-        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        return getStringFromIpAddress(wifiInfo.getIpAddress());
-    }
-
-    private String getWifiNetworkName() {
-        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        return wifiInfo.getSSID();
     }
 
     private static String getStringFromIpAddress(int ipAddress) {
