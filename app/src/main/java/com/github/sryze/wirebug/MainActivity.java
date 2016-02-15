@@ -39,10 +39,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -61,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Shell.getShell().setLoggingEnabled(true);
+        Shell.getShell().setLogPriority(Log.DEBUG);
 
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
@@ -182,25 +181,6 @@ public class MainActivity extends AppCompatActivity {
                 (ipAddress >> 16) & 0xFF, (ipAddress >> 24) & 0xFF);
     }
 
-    private static int getAdbTcpPort() {
-        try {
-            Process process = Runtime.getRuntime().exec(new String[] {
-                "getprop",
-                ADB_TCP_PORT_PROPERTY
-            });
-            process.waitFor();
-            String output = new BufferedReader(
-                    new InputStreamReader(process.getInputStream())).readLine();
-            Log.d(TAG, "getprop output: " + output);
-            return Integer.parseInt(output);
-        } catch (IOException | InterruptedException e) {
-            Log.e(TAG, "Error executing getprop: " + e.getMessage());
-        } catch (NumberFormatException e) {
-            // OK
-        }
-        return 0;
-    }
-
     private static boolean isWifiDebuggingEnabled() {
         return getAdbTcpPort() > 0;
     }
@@ -213,21 +193,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private static int getAdbTcpPort() {
+        try {
+            String output = Shell.getShell().exec("getprop " + ADB_TCP_PORT_PROPERTY);
+            return Integer.parseInt(output.trim());
+        } catch (ShellException e) {
+            Log.e(TAG, "Error executing getprop: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            // OK
+        }
+        return 0;
+    }
+
     private static boolean setAdbTcpPort(int port) {
         try {
             String portArg = port > 0 ? String.format("%d", port) : "\"\"";
-            String[] args = new String[] {
-                "su",
-                "-c",
-                "setprop " + ADB_TCP_PORT_PROPERTY + " " + portArg
-            };
-            Process process = Runtime.getRuntime().exec(args);
-            process.waitFor();
-            String output = new BufferedReader(
-                    new InputStreamReader(process.getInputStream())).readLine();
-            Log.d(TAG, "setprop output: " + output);
+            String command = "setprop " + ADB_TCP_PORT_PROPERTY + " " + portArg;
+            Shell.getShell().execAsRoot(command);
             return true;
-        } catch (IOException | InterruptedException e) {
+        } catch (ShellException e) {
             Log.e(TAG, "Error executing setprop: " + e.getMessage());
             return false;
         }
@@ -235,8 +219,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static void restartAdbDaemon() {
         try {
-            Runtime.getRuntime().exec("su -c \"stop adbd; start adbd\"").waitFor();
-        } catch (IOException | InterruptedException e) {
+            Shell.getShell().execAsRoot("stop adbd; start adbd");
+        } catch (ShellException e) {
             Log.e(TAG, "Error restarting ADB daemon: " + e.getMessage());
         }
     }
