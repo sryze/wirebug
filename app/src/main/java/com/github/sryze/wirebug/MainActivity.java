@@ -235,8 +235,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static void restartAdbDaemon() {
         try {
-            Runtime.getRuntime().exec("su -c \"stop adbd; start adbd\"");
-        } catch (IOException e) {
+            Runtime.getRuntime().exec("su -c \"stop adbd; start adbd\"").waitFor();
+        } catch (IOException | InterruptedException e) {
             Log.e(TAG, "Error restarting ADB daemon: " + e.getMessage());
         }
     }
