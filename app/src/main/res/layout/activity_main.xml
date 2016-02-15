@@ -36,7 +36,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/run_command" />
                 <TextView
-                    android:id="@+id/text_command"
+                    android:id="@+id/text_connect_command"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
@@ -47,8 +47,14 @@
                     android:textStyle="bold"
                     tools:text="adb connect 192.168.1.100" />
                 <TextView
+                    android:id="@+id/text_wifi_network"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="@string/wifi_network" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:text="@string/good_luck" />
             </LinearLayout>
         </RelativeLayout>

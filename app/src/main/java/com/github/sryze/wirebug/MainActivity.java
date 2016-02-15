@@ -52,8 +52,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Switch wifiDebuggingSwitch;
     private View connectedView;
-    private View instructionsView;
-    private TextView commandTextView;
+    private View instructionsView;;
+    private TextView connectCommandTextView;
+    private TextView wifiNetworkTextView;
     private View notConnectedView;
 
     @Override
@@ -72,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
         instructionsView = findViewById(R.id.view_instructions);
         instructionsView.setVisibility(View.INVISIBLE);
 
-        commandTextView = (TextView) findViewById(R.id.text_command);
+        connectCommandTextView = (TextView) findViewById(R.id.text_connect_command);
+        wifiNetworkTextView = (TextView) findViewById(R.id.text_wifi_network);
 
         notConnectedView = findViewById(R.id.view_not_connected);
         notConnectedView.setVisibility(View.INVISIBLE);
@@ -115,7 +117,8 @@ public class MainActivity extends AppCompatActivity {
                         notConnectedView.setVisibility(View.VISIBLE);
                         break;
                 }
-                updateIpAddress();
+                updateWifiIpAddress();
+                updateWifiNetworkName();
             }
         }, wifiIntentFilter);
 
@@ -157,13 +160,19 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateIpAddress() {
+    private void updateWifiNetworkName() {
+        String text = String.format(getString(R.string.wifi_network), getWifiNetworkName());
+        wifiNetworkTextView.setText(text);
+    }
+
+    private void updateWifiIpAddress() {
         String command = String.format("adb connect %s", getWifiIpAddress());
-        commandTextView.setText(command);
+        connectCommandTextView.setText(command);
     }
 
     private void updateInstructions(boolean isVisible) {
-        updateIpAddress();
+        updateWifiNetworkName();
+        updateWifiIpAddress();
         instructionsView.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
@@ -171,6 +180,12 @@ public class MainActivity extends AppCompatActivity {
         WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         return getStringFromIpAddress(wifiInfo.getIpAddress());
+    }
+
+    private String getWifiNetworkName() {
+        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        return wifiInfo.getSSID();
     }
 
     private static String getStringFromIpAddress(int ipAddress) {
