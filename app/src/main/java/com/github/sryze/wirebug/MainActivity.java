@@ -177,8 +177,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static String getStringFromIpAddress(int ipAddress) {
-        return String.format("%d.%d.%d.%d", ipAddress & 0xFF, (ipAddress >> 8) & 0xFF,
-                (ipAddress >> 16) & 0xFF, (ipAddress >> 24) & 0xFF);
+        return String.format("%d.%d.%d.%d",
+                ipAddress & 0xFF,
+                (ipAddress >> 8) & 0xFF,
+                (ipAddress >> 16) & 0xFF,
+                (ipAddress >> 24) & 0xFF);
     }
 
     private static boolean isWifiDebuggingEnabled() {
@@ -198,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             String output = Shell.getShell().exec("getprop " + ADB_TCP_PORT_PROPERTY);
             return Integer.parseInt(output.trim());
         } catch (ShellException e) {
-            Log.e(TAG, "Error executing getprop: " + e.getMessage());
+            Log.e(TAG, String.format("Error getting current TCP port: %s", e.getMessage()));
         } catch (NumberFormatException e) {
             // OK
         }
@@ -208,11 +211,12 @@ public class MainActivity extends AppCompatActivity {
     private static boolean setAdbTcpPort(int port) {
         try {
             String portArg = port > 0 ? String.format("%d", port) : "\"\"";
-            String command = "setprop " + ADB_TCP_PORT_PROPERTY + " " + portArg;
+            String command = String.format("setprop %s %s", ADB_TCP_PORT_PROPERTY, portArg);
             Shell.getShell().execAsRoot(command);
             return true;
         } catch (ShellException e) {
-            Log.e(TAG, "Error executing setprop: " + e.getMessage());
+            Log.e(TAG, String.format(
+                    "Error setting TCP port (%s): %s", port, e.getMessage()));
             return false;
         }
     }
@@ -221,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             Shell.getShell().execAsRoot("stop adbd; start adbd");
         } catch (ShellException e) {
-            Log.e(TAG, "Error restarting ADB daemon: " + e.getMessage());
+            Log.e(TAG, String.format("Error restarting ADB daemon: %s", e.getMessage()));
         }
     }
 }
