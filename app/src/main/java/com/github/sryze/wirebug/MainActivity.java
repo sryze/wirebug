@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        boolean isConnected = networkInfo.isConnected();
+        boolean isConnected = networkInfo != null ? networkInfo.isConnected() : false;
 
         connectedView = findViewById(R.id.view_connected);
         connectedView.setVisibility(isConnected ? View.VISIBLE : View.GONE);
