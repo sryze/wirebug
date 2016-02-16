@@ -18,6 +18,9 @@
 package com.github.sryze.wirebug;
 
 import android.app.KeyguardManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +31,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -45,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String ADB_TCP_PORT_PROPERTY = "service.adb.tcp.port";
     private static final int ADB_TCP_PORT_DEFAULT = 5555;
+
+    private static final int STATUS_NOTIFICATION = 0;
 
     private Switch wifiDebuggingSwitch;
     private View connectedView;
@@ -80,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         boolean isEnabled = isWifiDebuggingEnabled();
         updateInstructions(isEnabled);
+        updateStatusNotification(isEnabled);
 
         wifiDebuggingSwitch = (Switch) findViewById(R.id.switch_wifi_debugging);
         wifiDebuggingSwitch.setChecked(isEnabled);
@@ -90,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
                 boolean isActuallyEnabled = isWifiDebuggingEnabled();
                 if (isChecked == isActuallyEnabled) {
                     updateInstructions(isChecked);
+                    updateStatusNotification(isChecked);
                 } else {
                     String toastText = isChecked
                             ? getString(R.string.could_not_enable)
@@ -131,9 +139,7 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences preferences =
                             getSharedPreferences("Settings", MODE_PRIVATE);
                     if (preferences.getBoolean("disable_on_lock", false)) {
-                        setWifiDebuggingEnabled(false);
                         wifiDebuggingSwitch.setChecked(false);
-                        updateInstructions(false);
                     }
                 }
             }
@@ -174,6 +180,26 @@ public class MainActivity extends AppCompatActivity {
     private void updateInstructions(boolean isVisible) {
         updateWifiInfo();
         instructionsView.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    private void updateStatusNotification(boolean isEnabled) {
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancel(STATUS_NOTIFICATION);
+
+        if (isEnabled) {
+            Intent intent = new Intent(this, MainActivity.class);
+            PendingIntent pendingIntent =
+                    PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            Notification notification = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(getString(R.string.app_name))
+                    .setContentText(getString(R.string.status_enabled))
+                    .setContentIntent(pendingIntent)
+                    .build();
+            notification.flags |= Notification.FLAG_NO_CLEAR;
+            notificationManager.notify(STATUS_NOTIFICATION, notification);
+        }
     }
 
     private static String getStringFromIpAddress(int ipAddress) {
