@@ -22,10 +22,8 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
@@ -39,35 +37,10 @@ public class DebugStatusService extends Service {
 
     private boolean isEnabled;
     private Handler autoUpdateHandler = new Handler();
-    private BroadcastReceiver screenOffReceiver;
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        screenOffReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                KeyguardManager keyguardManager =
-                        (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-                if (keyguardManager.inKeyguardRestrictedInputMode()) {
-                    Log.d(TAG, "Screen was locked");
-                    SharedPreferences preferences =
-                            context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
-                    if (preferences.getBoolean("disable_on_lock", false)) {
-                        Log.i(TAG, "Disabling debugging because disable_on_lock is true");
-                        DebugManager.setWifiDebuggingEnabled(false);
-                        updateStatus();
-                    }
-                }
-            }
-        };
-        registerReceiver(screenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
     }
 
     @Override
@@ -87,13 +60,19 @@ public class DebugStatusService extends Service {
         return START_STICKY;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(screenOffReceiver);
-    }
-
     private void updateStatus() {
+        KeyguardManager keyguardManager =
+                (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        if (keyguardManager.inKeyguardRestrictedInputMode()) {
+            Log.d(TAG, "Screen is locked");
+            SharedPreferences preferences =
+                    getSharedPreferences("Settings", Context.MODE_PRIVATE);
+            if (preferences.getBoolean("disable_on_lock", false)) {
+                Log.i(TAG, "Disabling debugging because disable_on_lock is true");
+                DebugManager.setWifiDebuggingEnabled(false);
+            }
+        }
+
         boolean isEnabled = DebugManager.isWifiDebuggingEnabled();
         if (isEnabled == this.isEnabled) {
             Log.i(TAG, "Status unchanged");
