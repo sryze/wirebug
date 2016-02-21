@@ -31,6 +31,10 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 public class DebugStatusService extends Service {
+    public static final String ACTION_DEBUG_STATUS_CHANGED =
+            "com.github.sryze.wirebug.action.DEBUG_STATUS_CHANGED";
+    public static final String EXTRA_IS_ENABLED = "com.github.sryze.wirebug.IS_ENABLED";
+
     private static final String TAG = "DebugStatusService";
     private static final int STATUS_NOTIFICATION = 0;
     private static final long STATUS_UPDATE_INTERVAL = 5000;
@@ -81,6 +85,10 @@ public class DebugStatusService extends Service {
 
         Log.i(TAG, String.format("Updating status to %s", isEnabled ? "enabled" : "disabled"));
         this.isEnabled = isEnabled;
+
+        Intent statusChangedIntent = new Intent(ACTION_DEBUG_STATUS_CHANGED);
+        statusChangedIntent.putExtra(EXTRA_IS_ENABLED, isEnabled);
+        sendBroadcast(statusChangedIntent);
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

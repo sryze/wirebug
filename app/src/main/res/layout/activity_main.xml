@@ -16,7 +16,7 @@
         android:orientation="vertical">
 
         <Switch
-            android:id="@+id/switch_wifi_debugging"
+            android:id="@+id/switch_enable_debugging"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/enable_debugging" />

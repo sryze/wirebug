@@ -44,26 +44,46 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
-    private Switch wifiDebuggingSwitch;
+    private Switch enableSwitch;
     private View connectedView;
     private View instructionsView;;
     private TextView connectCommandTextView;
     private TextView wifiNetworkTextView;
     private View notConnectedView;
 
+    private CompoundButton.OnCheckedChangeListener enableSwitchChangeListener;
     private BroadcastReceiver networkStateChangedReceiver;
+    private BroadcastReceiver debugStatusChangedReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        wifiDebuggingSwitch = (Switch) findViewById(R.id.switch_wifi_debugging);
+        enableSwitch = (Switch) findViewById(R.id.switch_enable_debugging);
         connectedView = findViewById(R.id.view_connected);
         instructionsView = findViewById(R.id.view_instructions);
         connectCommandTextView = (TextView) findViewById(R.id.text_connect_command);
         wifiNetworkTextView = (TextView) findViewById(R.id.text_wifi_network);
         notConnectedView = findViewById(R.id.view_not_connected);
+
+        enableSwitchChangeListener = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                DebugManager.setWifiDebuggingEnabled(isChecked);
+                boolean isActuallyEnabled = DebugManager.isWifiDebuggingEnabled();
+                if (isChecked == isActuallyEnabled) {
+                    updateInstructions(isChecked);
+                    updateStatus();
+                } else {
+                    String toastText = isChecked
+                            ? getString(R.string.could_not_enable)
+                            : getString(R.string.could_not_disable);
+                    Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
+                    enableSwitch.setChecked(isActuallyEnabled);
+                }
+            }
+        };
 
         Log.i(TAG, "Starting status update service");
         startService(new Intent(this, DebugStatusService.class));
@@ -88,29 +108,14 @@ public class MainActivity extends AppCompatActivity {
         updateInstructions(isEnabled);
         updateStatus();
 
-        wifiDebuggingSwitch.setOnCheckedChangeListener(null);
-        wifiDebuggingSwitch.setChecked(isEnabled);
-        wifiDebuggingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                DebugManager.setWifiDebuggingEnabled(isChecked);
-                boolean isActuallyEnabled = DebugManager.isWifiDebuggingEnabled();
-                if (isChecked == isActuallyEnabled) {
-                    updateInstructions(isChecked);
-                    updateStatus();
-                } else {
-                    String toastText = isChecked
-                            ? getString(R.string.could_not_enable)
-                            : getString(R.string.could_not_disable);
-                    Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
-                    wifiDebuggingSwitch.setChecked(isActuallyEnabled);
-                }
-            }
-        });
+        enableSwitch.setOnCheckedChangeListener(null);
+        enableSwitch.setChecked(isEnabled);
+        enableSwitch.setOnCheckedChangeListener(enableSwitchChangeListener);
 
         networkStateChangedReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, "Received network state changed broadcast");
                 NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 switch (networkInfo.getState()) {
                     case CONNECTED:
@@ -128,6 +133,21 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(networkStateChangedReceiver,
                 new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
 
+        debugStatusChangedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, "Received debug state change broadcast");
+                boolean isEnabled =
+                        intent.getBooleanExtra(DebugStatusService.EXTRA_IS_ENABLED, false);
+                updateInstructions(isEnabled);
+                enableSwitch.setOnCheckedChangeListener(null);
+                enableSwitch.setChecked(isEnabled);
+                enableSwitch.setOnCheckedChangeListener(enableSwitchChangeListener);
+            }
+        };
+        registerReceiver(debugStatusChangedReceiver,
+                new IntentFilter(DebugStatusService.ACTION_DEBUG_STATUS_CHANGED));
+
         if (!(new File("/system/bin/su")).exists()) {
             AlertDialog alertDialog = new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
                     .setTitle(R.string.warning)
@@ -141,7 +161,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        
         unregisterReceiver(networkStateChangedReceiver);
+        unregisterReceiver(debugStatusChangedReceiver);
     }
 
     @Override
