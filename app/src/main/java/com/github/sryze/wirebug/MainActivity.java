@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView wifiNetworkTextView;
     private View notConnectedView;
 
+    private boolean showedRootWarning = false;
+
     private CompoundButton.OnCheckedChangeListener enableSwitchChangeListener;
     private BroadcastReceiver networkStateChangedReceiver;
     private BroadcastReceiver debugStatusChangedReceiver;
@@ -90,6 +92,20 @@ public class MainActivity extends AppCompatActivity {
 
         Shell.getShell().setLoggingEnabled(true);
         Shell.getShell().setLogPriority(Log.DEBUG);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (!showedRootWarning && !(new File("/system/bin/su")).exists()) {
+            new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
+                    .setTitle(R.string.warning)
+                    .setMessage(R.string.not_rooted)
+                    .setPositiveButton(R.string.ok, null)
+                    .show();
+            showedRootWarning = true;
+        }
     }
 
     @Override
@@ -147,15 +163,6 @@ public class MainActivity extends AppCompatActivity {
         };
         registerReceiver(debugStatusChangedReceiver,
                 new IntentFilter(DebugStatusService.ACTION_DEBUG_STATUS_CHANGED));
-
-        if (!(new File("/system/bin/su")).exists()) {
-            AlertDialog alertDialog = new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
-                    .setTitle(R.string.warning)
-                    .setMessage(R.string.not_rooted)
-                    .setPositiveButton(R.string.ok, null)
-                    .create();
-            alertDialog.show();
-        }
     }
 
     @Override
