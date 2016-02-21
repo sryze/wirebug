@@ -102,7 +102,7 @@ public class DebugStatusService extends Service {
             PendingIntent pendingIntent =
                     PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
             Notification notification = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_launcher)
                     .setContentTitle(getString(R.string.app_name))
                     .setContentText(getString(R.string.status_enabled))
                     .setContentIntent(pendingIntent)
