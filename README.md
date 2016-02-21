@@ -11,4 +11,4 @@ lost/forgot it somewhere.
 property as well as to restart the ADB daemon. If the `su` command is not
 available it will only be able to reflect the current debugging status in the
 notification area but not change it (may be still be useful in case you use
-`abd tcpip`).
+`adb tcpip`).
