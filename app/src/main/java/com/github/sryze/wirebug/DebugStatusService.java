@@ -37,6 +37,7 @@ public class DebugStatusService extends Service {
     private static final int STATUS_NOTIFICATION = 0;
     private static final long STATUS_UPDATE_INTERVAL = 5000;
 
+    private boolean isEnabled;
     private Handler autoUpdateHandler = new Handler();
 
     @Override
@@ -86,12 +87,16 @@ public class DebugStatusService extends Service {
 
     private void updateStatus() {
         boolean isEnabled = DebugManager.isWifiDebuggingEnabled();
+        if (isEnabled == this.isEnabled) {
+            Log.i(TAG, "Status unchanged");
+            return;
+        }
+
         Log.i(TAG, String.format("Updating status to %s", isEnabled ? "enabled" : "disabled"));
+        this.isEnabled = isEnabled;
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.cancel(STATUS_NOTIFICATION);
-
         if (isEnabled) {
             Intent intent = new Intent(this, MainActivity.class);
             PendingIntent pendingIntent =
@@ -105,6 +110,8 @@ public class DebugStatusService extends Service {
                     .build();
             notification.flags |= Notification.FLAG_NO_CLEAR;
             notificationManager.notify(STATUS_NOTIFICATION, notification);
+        } else {
+            notificationManager.cancel(STATUS_NOTIFICATION);
         }
     }
 }
