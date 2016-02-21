@@ -10,4 +10,7 @@
     <string name="disable_on_lock">Automatically disable debugging on screen lock</string>
     <string name="status_enabled">Wi-Fi debugging is enabled.</string>
     <string name="status_disabled">Wi-Fi debugging is disabled.</string>
+    <string name="warning">Warning</string>
+    <string name="not_rooted">It looks like your device is not rooted. Wirebug will not be able to toggle Wi-Fi debugging.</string>
+    <string name="ok">OK</string>
 </resources>

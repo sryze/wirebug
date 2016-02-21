@@ -17,6 +17,7 @@
 
 package com.github.sryze.wirebug;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +37,8 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -120,6 +123,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        if (!(new File("/system/bin/su")).exists()) {
+            AlertDialog alertDialog = new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
+                    .setTitle(R.string.warning)
+                    .setMessage(R.string.not_rooted)
+                    .setPositiveButton(R.string.ok, null)
+                    .create();
+            alertDialog.show();
+        }
     }
 
     @Override
