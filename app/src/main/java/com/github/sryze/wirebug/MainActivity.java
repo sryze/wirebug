@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView wifiNetworkTextView;
     private View notConnectedView;
 
+    private BroadcastReceiver networkStateChangedReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,24 +64,6 @@ public class MainActivity extends AppCompatActivity {
         connectCommandTextView = (TextView) findViewById(R.id.text_connect_command);
         wifiNetworkTextView = (TextView) findViewById(R.id.text_wifi_network);
         notConnectedView = findViewById(R.id.view_not_connected);
-
-        registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-                switch (networkInfo.getState()) {
-                    case CONNECTED:
-                        connectedView.setVisibility(View.VISIBLE);
-                        notConnectedView.setVisibility(View.INVISIBLE);
-                        break;
-                    case DISCONNECTED:
-                        connectedView.setVisibility(View.GONE);
-                        notConnectedView.setVisibility(View.VISIBLE);
-                        break;
-                }
-                updateWifiInfo();
-            }
-        }, new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
 
         Log.i(TAG, "Starting status update service");
         startService(new Intent(this, DebugStatusService.class));
@@ -124,6 +108,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        networkStateChangedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                switch (networkInfo.getState()) {
+                    case CONNECTED:
+                        connectedView.setVisibility(View.VISIBLE);
+                        notConnectedView.setVisibility(View.INVISIBLE);
+                        break;
+                    case DISCONNECTED:
+                        connectedView.setVisibility(View.GONE);
+                        notConnectedView.setVisibility(View.VISIBLE);
+                        break;
+                }
+                updateWifiInfo();
+            }
+        };
+        registerReceiver(networkStateChangedReceiver,
+                new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+
         if (!(new File("/system/bin/su")).exists()) {
             AlertDialog alertDialog = new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
                     .setTitle(R.string.warning)
@@ -132,6 +136,12 @@ public class MainActivity extends AppCompatActivity {
                     .create();
             alertDialog.show();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkStateChangedReceiver);
     }
 
     @Override

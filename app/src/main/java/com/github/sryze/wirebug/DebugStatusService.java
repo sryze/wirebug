@@ -39,6 +39,7 @@ public class DebugStatusService extends Service {
 
     private boolean isEnabled;
     private Handler autoUpdateHandler = new Handler();
+    private BroadcastReceiver screenOffReceiver;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -49,7 +50,7 @@ public class DebugStatusService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        registerReceiver(new BroadcastReceiver() {
+        screenOffReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 KeyguardManager keyguardManager =
@@ -65,7 +66,8 @@ public class DebugStatusService extends Service {
                     }
                 }
             }
-        }, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+        };
+        registerReceiver(screenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
     }
 
     @Override
@@ -83,6 +85,12 @@ public class DebugStatusService extends Service {
         }.run();
 
         return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(screenOffReceiver);
     }
 
     private void updateStatus() {
