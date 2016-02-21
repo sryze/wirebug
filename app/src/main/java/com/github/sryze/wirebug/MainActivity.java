@@ -17,21 +17,15 @@
 
 package com.github.sryze.wirebug;
 
-import android.app.KeyguardManager;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -47,11 +41,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
-    private static final String ADB_TCP_PORT_PROPERTY = "service.adb.tcp.port";
-    private static final int ADB_TCP_PORT_DEFAULT = 5555;
-
-    private static final int STATUS_NOTIFICATION = 0;
-
     private Switch wifiDebuggingSwitch;
     private View connectedView;
     private View instructionsView;;
@@ -64,52 +53,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Shell.getShell().setLoggingEnabled(true);
-        Shell.getShell().setLogPriority(Log.DEBUG);
-
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        boolean isConnected = networkInfo != null ? networkInfo.isConnected() : false;
-
+        wifiDebuggingSwitch = (Switch) findViewById(R.id.switch_wifi_debugging);
         connectedView = findViewById(R.id.view_connected);
-        connectedView.setVisibility(isConnected ? View.VISIBLE : View.GONE);
-
         instructionsView = findViewById(R.id.view_instructions);
-        instructionsView.setVisibility(View.INVISIBLE);
-
         connectCommandTextView = (TextView) findViewById(R.id.text_connect_command);
         wifiNetworkTextView = (TextView) findViewById(R.id.text_wifi_network);
-
         notConnectedView = findViewById(R.id.view_not_connected);
-        notConnectedView.setVisibility(View.INVISIBLE);
 
-        boolean isEnabled = isWifiDebuggingEnabled();
-        updateInstructions(isEnabled);
-        updateStatusNotification(isEnabled);
-
-        wifiDebuggingSwitch = (Switch) findViewById(R.id.switch_wifi_debugging);
-        wifiDebuggingSwitch.setChecked(isEnabled);
-        wifiDebuggingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                setWifiDebuggingEnabled(isChecked);
-                boolean isActuallyEnabled = isWifiDebuggingEnabled();
-                if (isChecked == isActuallyEnabled) {
-                    updateInstructions(isChecked);
-                    updateStatusNotification(isChecked);
-                } else {
-                    String toastText = isChecked
-                            ? getString(R.string.could_not_enable)
-                            : getString(R.string.could_not_disable);
-                    Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
-                    wifiDebuggingSwitch.setChecked(isActuallyEnabled);
-                }
-            }
-        });
-
-        IntentFilter wifiIntentFilter = new IntentFilter();
-        wifiIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -126,24 +76,50 @@ public class MainActivity extends AppCompatActivity {
                 }
                 updateWifiInfo();
             }
-        }, wifiIntentFilter);
+        }, new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
 
-        IntentFilter screenIntentFilter = new IntentFilter();
-        screenIntentFilter.addAction(Intent.ACTION_SCREEN_OFF);
-        registerReceiver(new BroadcastReceiver() {
+        Log.i(TAG, "Starting status update service");
+        startService(new Intent(this, DebugStatusService.class));
+
+        Shell.getShell().setLoggingEnabled(true);
+        Shell.getShell().setLogPriority(Log.DEBUG);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        boolean isConnected = networkInfo != null ? networkInfo.isConnected() : false;
+
+        connectedView.setVisibility(isConnected ? View.VISIBLE : View.GONE);
+        notConnectedView.setVisibility(isConnected ? View.GONE : View.VISIBLE);
+
+        boolean isEnabled = DebugManager.isWifiDebuggingEnabled();
+        updateInstructions(isEnabled);
+        updateStatus();
+
+        wifiDebuggingSwitch.setOnCheckedChangeListener(null);
+        wifiDebuggingSwitch.setChecked(isEnabled);
+        wifiDebuggingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onReceive(Context context, Intent intent) {
-                KeyguardManager keyguardManager =
-                        (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
-                if (keyguardManager.inKeyguardRestrictedInputMode()) {
-                    SharedPreferences preferences =
-                            getSharedPreferences("Settings", MODE_PRIVATE);
-                    if (preferences.getBoolean("disable_on_lock", false)) {
-                        wifiDebuggingSwitch.setChecked(false);
-                    }
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                DebugManager.setWifiDebuggingEnabled(isChecked);
+                boolean isActuallyEnabled = DebugManager.isWifiDebuggingEnabled();
+                if (isChecked == isActuallyEnabled) {
+                    updateInstructions(isChecked);
+                    updateStatus();
+                } else {
+                    String toastText = isChecked
+                            ? getString(R.string.could_not_enable)
+                            : getString(R.string.could_not_disable);
+                    Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
+                    wifiDebuggingSwitch.setChecked(isActuallyEnabled);
                 }
             }
-        }, screenIntentFilter);
+        });
     }
 
     @Override
@@ -170,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
         int ipAddress = wifiInfo.getIpAddress();
         connectCommandTextView.setText(
-                String.format("adb connect %s", getStringFromIpAddress(ipAddress)));
+                String.format("adb connect %s", DebugManager.getStringFromIpAddress(ipAddress)));
 
         String ssid = wifiInfo.getSSID();
         wifiNetworkTextView.setText(
@@ -182,76 +158,7 @@ public class MainActivity extends AppCompatActivity {
         instructionsView.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
-    private void updateStatusNotification(boolean isEnabled) {
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.cancel(STATUS_NOTIFICATION);
-
-        if (isEnabled) {
-            Intent intent = new Intent(this, MainActivity.class);
-            PendingIntent pendingIntent =
-                    PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-            Notification notification = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setContentText(getString(R.string.status_enabled))
-                    .setContentIntent(pendingIntent)
-                    .build();
-            notification.flags |= Notification.FLAG_NO_CLEAR;
-            notificationManager.notify(STATUS_NOTIFICATION, notification);
-        }
-    }
-
-    private static String getStringFromIpAddress(int ipAddress) {
-        return String.format("%d.%d.%d.%d",
-                ipAddress & 0xFF,
-                (ipAddress >> 8) & 0xFF,
-                (ipAddress >> 16) & 0xFF,
-                (ipAddress >> 24) & 0xFF);
-    }
-
-    private static boolean isWifiDebuggingEnabled() {
-        return getAdbTcpPort() > 0;
-    }
-
-    private static void setWifiDebuggingEnabled(boolean isEnabled) {
-        if (setAdbTcpPort(isEnabled ? ADB_TCP_PORT_DEFAULT : 0)) {
-            Log.i(TAG, "Debugging over TCP is enabled: " + (isEnabled ? "YES" : "NO"));
-            Log.i(TAG, "Restarting ADB daemon (this will kill your debugging session)");
-            restartAdbDaemon();
-        }
-    }
-
-    private static int getAdbTcpPort() {
-        try {
-            String output = Shell.getShell().exec("getprop " + ADB_TCP_PORT_PROPERTY);
-            return Integer.parseInt(output.trim());
-        } catch (ShellException e) {
-            Log.e(TAG, String.format("Error getting current TCP port: %s", e.getMessage()));
-        } catch (NumberFormatException e) {
-            // OK
-        }
-        return 0;
-    }
-
-    private static boolean setAdbTcpPort(int port) {
-        try {
-            String portArg = port > 0 ? String.format("%d", port) : "\"\"";
-            String command = String.format("setprop %s %s", ADB_TCP_PORT_PROPERTY, portArg);
-            Shell.getShell().execAsRoot(command);
-            return true;
-        } catch (ShellException e) {
-            Log.e(TAG, String.format(
-                    "Error setting TCP port (%s): %s", port, e.getMessage()));
-            return false;
-        }
-    }
-
-    private static void restartAdbDaemon() {
-        try {
-            Shell.getShell().execAsRoot("stop adbd; start adbd");
-        } catch (ShellException e) {
-            Log.e(TAG, String.format("Error restarting ADB daemon: %s", e.getMessage()));
-        }
+    private void updateStatus() {
+        startService(new Intent(this, DebugStatusService.class));
     }
 }
