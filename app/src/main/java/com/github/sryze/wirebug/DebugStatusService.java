@@ -101,6 +101,7 @@ public class DebugStatusService extends Service {
                     .setContentTitle(getString(R.string.app_name))
                     .setContentText(getString(R.string.status_enabled))
                     .setContentIntent(pendingIntent)
+                    .setCategory(Notification.CATEGORY_STATUS)
                     .build();
             notification.flags |= Notification.FLAG_NO_CLEAR;
             notificationManager.notify(STATUS_NOTIFICATION, notification);
