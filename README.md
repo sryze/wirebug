@@ -8,5 +8,7 @@ lost/forgot it somewhere.
 ![Screenshot](screenshot.png)
 
 **Note:** Wirebug needs root permissions to write to the `system.adb.tcp.port`
-property as well as to restart the ADB daemon. Thus it will work only with
-rooted devices.
+property as well as to restart the ADB daemon. If the `su` command is not
+available it will only be able to reflect the current debugging status in the
+notification area but not change it (may be still be useful in case you use
+`abd tcpip`).
