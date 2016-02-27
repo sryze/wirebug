@@ -72,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
         enableSwitchChangeListener = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                DebugManager.setWifiDebuggingEnabled(isChecked);
-                boolean isActuallyEnabled = DebugManager.isWifiDebuggingEnabled();
+                DebugManager.setTcpDebuggingEnabled(isChecked);
+                boolean isActuallyEnabled = DebugManager.isTcpDebuggingEnabled();
                 if (isChecked == isActuallyEnabled) {
                     updateInstructions(isChecked);
                     updateStatus();
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         connectedView.setVisibility(isConnected ? View.VISIBLE : View.GONE);
         notConnectedView.setVisibility(isConnected ? View.GONE : View.VISIBLE);
 
-        boolean isEnabled = DebugManager.isWifiDebuggingEnabled();
+        boolean isEnabled = DebugManager.isTcpDebuggingEnabled();
         updateInstructions(isEnabled);
         updateStatus();
 

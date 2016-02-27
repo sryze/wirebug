@@ -33,11 +33,11 @@ public class DebugManager {
                 (ipAddress >> 24) & 0xFF);
     }
 
-    public static boolean isWifiDebuggingEnabled() {
+    public static boolean isTcpDebuggingEnabled() {
         return getAdbTcpPort() > 0;
     }
 
-    public static void setWifiDebuggingEnabled(boolean isEnabled) {
+    public static void setTcpDebuggingEnabled(boolean isEnabled) {
         if (setAdbTcpPort(isEnabled ? ADB_TCP_PORT_DEFAULT : 0)) {
             Log.i(TAG, "Debugging over TCP is enabled: " + (isEnabled ? "YES" : "NO"));
             Log.i(TAG, "Restarting ADB daemon (this will kill your debugging session)");

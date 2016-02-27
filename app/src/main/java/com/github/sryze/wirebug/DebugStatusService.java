@@ -74,11 +74,11 @@ public class DebugStatusService extends Service {
                     getSharedPreferences("Settings", Context.MODE_PRIVATE);
             if (preferences.getBoolean("disable_on_lock", false)) {
                 Log.i(TAG, "Disabling debugging because disable_on_lock is true");
-                DebugManager.setWifiDebuggingEnabled(false);
+                DebugManager.setTcpDebuggingEnabled(false);
             }
         }
 
-        boolean isEnabled = DebugManager.isWifiDebuggingEnabled();
+        boolean isEnabled = DebugManager.isTcpDebuggingEnabled();
         if (isEnabled == this.isEnabled) {
             Log.i(TAG, "Status unchanged");
             return;
