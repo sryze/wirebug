@@ -32,8 +32,9 @@ import android.util.Log;
 
 public class DebugStatusService extends Service {
     public static final String ACTION_DEBUG_STATUS_CHANGED =
-            "com.github.sryze.wirebug.action.DEBUG_STATUS_CHANGED";
-    public static final String EXTRA_IS_ENABLED = "com.github.sryze.wirebug.IS_ENABLED";
+            "com.github.sryze.wirebug.debugstatus.action.DEBUG_STATUS_CHANGED";
+    public static final String EXTRA_IS_ENABLED =
+            "com.github.sryze.wirebug.debugstatus.extra.IS_ENABLED";
 
     private static final String TAG = "DebugStatusService";
     private static final int STATUS_NOTIFICATION = 0;
