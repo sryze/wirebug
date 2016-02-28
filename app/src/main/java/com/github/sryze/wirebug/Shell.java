@@ -116,6 +116,14 @@ public class Shell {
         }
     }
 
+    public boolean canExecAsRoot() {
+        try {
+            return exec("su -c id").startsWith("uid=0(root)");
+        } catch (ShellException e) {
+            return false;
+        }
+    }
+
     public String execAsRoot(String command) throws ShellException {
         return exec(new String[] {"su", "-c", command});
     }

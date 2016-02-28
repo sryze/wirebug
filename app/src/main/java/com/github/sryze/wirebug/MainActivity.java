@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if (!showedRootWarning && !(new File("/system/bin/su")).exists()) {
+        if (!showedRootWarning && !Shell.getShell().canExecAsRoot()) {
             new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
                     .setTitle(R.string.warning)
                     .setMessage(R.string.not_rooted)
