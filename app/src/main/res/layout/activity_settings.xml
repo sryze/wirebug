@@ -10,9 +10,20 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.github.sryze.wirebug.SettingsActivity">
 
-    <Switch
-        android:id="@+id/switch_disable_on_lock"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/disable_on_lock" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <Switch
+            android:id="@+id/switch_disable_on_lock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/disable_on_lock" />
+        <Switch
+            android:id="@+id/switch_stay_awake"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/stay_awake" />
+    </LinearLayout>
 </RelativeLayout>

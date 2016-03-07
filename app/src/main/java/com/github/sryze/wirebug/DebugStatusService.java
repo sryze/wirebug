@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -42,6 +43,7 @@ public class DebugStatusService extends Service {
 
     private boolean isEnabled;
     private Handler autoUpdateHandler = new Handler();
+    private PowerManager.WakeLock wakeLock;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -50,7 +52,7 @@ public class DebugStatusService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "Service started");
+        Log.d(TAG, "Service is starting");
 
         new Runnable() {
             @Override
@@ -62,7 +64,26 @@ public class DebugStatusService extends Service {
             }
         }.run();
 
+        if (wakeLock == null) {
+            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+            wakeLock = powerManager.newWakeLock(
+                    PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE,
+                    TAG);
+        }
+
         return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        Log.d(TAG, "Service is being destroyed");
+
+        if (wakeLock.isHeld()) {
+            Log.i(TAG, "Releasing wake lock");
+            wakeLock.release();
+        }
     }
 
     private void updateStatus() {
@@ -86,6 +107,22 @@ public class DebugStatusService extends Service {
 
         Log.i(TAG, String.format("Updating status to %s", isEnabled ? "enabled" : "disabled"));
         this.isEnabled = isEnabled;
+
+        if (isEnabled) {
+            SharedPreferences preferences =
+                    getSharedPreferences("Settings", Context.MODE_PRIVATE);
+            if (preferences.getBoolean("stay_awake", false)) {
+                if (wakeLock != null && !wakeLock.isHeld()) {
+                    Log.i(TAG, "Acquiring wake lock because stay_awake is true");
+                    wakeLock.acquire();
+                }
+            }
+        } else {
+            if (wakeLock.isHeld()) {
+                Log.i(TAG, "Releasing wake lock");
+                wakeLock.release();
+            }
+        }
 
         Intent statusChangedIntent = new Intent(ACTION_DEBUG_STATUS_CHANGED);
         statusChangedIntent.putExtra(EXTRA_IS_ENABLED, isEnabled);

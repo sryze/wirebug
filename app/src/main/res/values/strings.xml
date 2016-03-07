@@ -8,6 +8,7 @@
     <string name="good_luck">Good luck!</string>
     <string name="not_connected">You are not connected to a Wi-Fi network.</string>
     <string name="disable_on_lock">Automatically disable debugging on screen lock</string>
+    <string name="stay_awake">Stay awake while debugging</string>
     <string name="status_enabled">Wi-Fi debugging is enabled.</string>
     <string name="status_disabled">Wi-Fi debugging is disabled.</string>
     <string name="warning">Warning</string>

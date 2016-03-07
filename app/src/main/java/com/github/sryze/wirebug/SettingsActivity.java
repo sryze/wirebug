@@ -33,14 +33,21 @@ public class SettingsActivity extends AppCompatActivity {
         final SharedPreferences preferences = getSharedPreferences("Settings", MODE_PRIVATE);
 
         final Switch disableOnLockSwitch = (Switch) findViewById(R.id.switch_disable_on_lock);
+        disableOnLockSwitch.setChecked(preferences.getBoolean("disable_on_lock", false));
         disableOnLockSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putBoolean("disable_on_lock", isChecked);
-                editor.commit();
+                preferences.edit().putBoolean("disable_on_lock", isChecked).commit();
             }
         });
-        disableOnLockSwitch.setChecked(preferences.getBoolean("disable_on_lock", false));
+
+        final Switch stayAwakeSwitch = (Switch) findViewById(R.id.switch_stay_awake);
+        stayAwakeSwitch.setChecked(preferences.getBoolean("stay_awake", false));
+        stayAwakeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                preferences.edit().putBoolean("stay_awake", isChecked).commit();
+            }
+        });
     }
 }
