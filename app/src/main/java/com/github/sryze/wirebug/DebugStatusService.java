@@ -131,6 +131,7 @@ public class DebugStatusService extends Service {
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (isEnabled) {
             Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent pendingIntent =
                     PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
             Notification notification = new NotificationCompat.Builder(this)
