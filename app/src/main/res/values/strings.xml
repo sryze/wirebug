@@ -7,11 +7,14 @@
     <string name="wifi_network">Also, make sure both of them are connected to the same Wi-Fi network (currently %s).</string>
     <string name="good_luck">Good luck!</string>
     <string name="not_connected">You are not connected to a Wi-Fi network.</string>
-    <string name="disable_on_lock">Automatically disable debugging on screen lock</string>
-    <string name="stay_awake">Stay awake while debugging</string>
-    <string name="status_enabled">Wi-Fi debugging is enabled.</string>
-    <string name="status_disabled">Wi-Fi debugging is disabled.</string>
     <string name="warning">Warning</string>
     <string name="not_rooted">It looks like your device is not rooted. Wirebug will not be able to toggle Wi-Fi debugging.</string>
     <string name="ok">OK</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="disable_on_lock">Disable on screen lock</string>
+    <string name="disable_on_lock_summary">Automatically disable debugging after screen gets locked</string>
+    <string name="stay_awake">Stay awake</string>
+    <string name="stay_awake_summary">Keep screen on while debugging is enabled</string>
+    <string name="status_enabled">Wi-Fi debugging is enabled.</string>
+    <string name="status_disabled">Wi-Fi debugging is disabled.</string>
 </resources>

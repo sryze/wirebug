@@ -28,6 +28,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -91,8 +92,7 @@ public class DebugStatusService extends Service {
                 (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
         if (keyguardManager.inKeyguardRestrictedInputMode()) {
             Log.d(TAG, "Screen is locked");
-            SharedPreferences preferences =
-                    getSharedPreferences("Settings", Context.MODE_PRIVATE);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             if (preferences.getBoolean("disable_on_lock", false)) {
                 Log.i(TAG, "Disabling debugging because disable_on_lock is true");
                 DebugManager.setTcpDebuggingEnabled(false);
@@ -109,8 +109,7 @@ public class DebugStatusService extends Service {
         this.isEnabled = isEnabled;
 
         if (isEnabled) {
-            SharedPreferences preferences =
-                    getSharedPreferences("Settings", Context.MODE_PRIVATE);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             if (preferences.getBoolean("stay_awake", false)) {
                 if (wakeLock != null && !wakeLock.isHeld()) {
                     Log.i(TAG, "Acquiring wake lock because stay_awake is true");

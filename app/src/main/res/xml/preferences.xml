@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:key="disable_on_lock"
+        android:title="@string/disable_on_lock"
+        android:summary="@string/disable_on_lock_summary"/>
+    <SwitchPreference
+        android:key="stay_awake"
+        android:title="@string/stay_awake"
+        android:summary="@string/stay_awake_summary" />
+</PreferenceScreen>

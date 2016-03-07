@@ -17,37 +17,51 @@
 
 package com.github.sryze.wirebug;
 
-import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.os.Bundle;
-import android.widget.CompoundButton;
-import android.widget.Switch;
+import android.preference.PreferenceFragment;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
+import android.view.MenuItem;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setupActionBar();
 
-        final SharedPreferences preferences = getSharedPreferences("Settings", MODE_PRIVATE);
+        getFragmentManager()
+                .beginTransaction()
+                .replace(android.R.id.content, new SettingsFragment())
+                .commit();
+    }
 
-        final Switch disableOnLockSwitch = (Switch) findViewById(R.id.switch_disable_on_lock);
-        disableOnLockSwitch.setChecked(preferences.getBoolean("disable_on_lock", false));
-        disableOnLockSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                preferences.edit().putBoolean("disable_on_lock", isChecked).commit();
-            }
-        });
+    private void setupActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
 
-        final Switch stayAwakeSwitch = (Switch) findViewById(R.id.switch_stay_awake);
-        stayAwakeSwitch.setChecked(preferences.getBoolean("stay_awake", false));
-        stayAwakeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                preferences.edit().putBoolean("stay_awake", isChecked).commit();
-            }
-        });
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class SettingsFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.preferences);
+            setHasOptionsMenu(true);
+        }
     }
 }
