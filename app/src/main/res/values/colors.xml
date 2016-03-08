@@ -2,4 +2,5 @@
     <color name="colorPrimary">#008CB0</color>
     <color name="colorPrimaryDark">#007CA0</color>
     <color name="colorAccent">#00AAD4</color>
+    <color name="colorTaskDescription">#DDDDDD</color>
 </resources>
