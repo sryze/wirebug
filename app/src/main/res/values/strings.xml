@@ -12,9 +12,9 @@
     <string name="ok">OK</string>
     <string name="title_activity_settings">Settings</string>
     <string name="disable_on_lock">Disable on screen lock</string>
-    <string name="disable_on_lock_summary">Automatically disable debugging after screen gets locked</string>
+    <string name="disable_on_lock_summary">Automatically disable debugging after the screen is locked</string>
     <string name="stay_awake">Stay awake</string>
-    <string name="stay_awake_summary">Keep screen on while debugging is enabled</string>
+    <string name="stay_awake_summary">Keep the screen on while debugging is enabled</string>
     <string name="status_enabled">Wi-Fi debugging is enabled.</string>
     <string name="status_disabled">Wi-Fi debugging is disabled.</string>
 </resources>
