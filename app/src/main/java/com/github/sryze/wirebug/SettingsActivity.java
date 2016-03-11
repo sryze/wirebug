@@ -30,19 +30,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupActionBar();
+        setContentView(R.layout.activity_settings);
 
-        getFragmentManager()
-                .beginTransaction()
-                .replace(android.R.id.content, new SettingsFragment())
-                .commit();
-    }
-
-    private void setupActionBar() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new SettingsFragment())
+                .commit();
     }
 
     @Override
