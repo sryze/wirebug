@@ -23,12 +23,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -44,6 +46,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final String WARNED_ABOUT_ROOT_KEY = "warned_about_root";
 
     private Switch enableSwitch;
     private View connectedView;
@@ -51,8 +54,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView connectCommandTextView;
     private TextView wifiNetworkTextView;
     private View notConnectedView;
-
-    private boolean showedRootWarning = false;
 
     private CompoundButton.OnCheckedChangeListener enableSwitchChangeListener;
     private BroadcastReceiver networkStateChangedReceiver;
@@ -107,13 +108,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if (!showedRootWarning && !Shell.getShell().canExecAsRoot()) {
-            new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!preferences.getBoolean(WARNED_ABOUT_ROOT_KEY, false)
+                && !Shell.getShell().canExecAsRoot()) {
+            new AlertDialog.Builder(this)
                     .setTitle(R.string.warning)
                     .setMessage(R.string.not_rooted)
                     .setPositiveButton(R.string.ok, null)
                     .show();
-            showedRootWarning = true;
+            preferences.edit().putBoolean(WARNED_ABOUT_ROOT_KEY, true).commit();
         }
     }
 
