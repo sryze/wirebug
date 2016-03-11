@@ -39,16 +39,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final String WARNED_ABOUT_ROOT_KEY = "warned_about_root";
 
-    private Switch enableSwitch;
+    private ToggleButton toggleDebuggingButton;
     private View connectedView;
     private View instructionsView;;
     private TextView connectCommandTextView;
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             setTaskDescription(taskDescription);
         }
 
-        enableSwitch = (Switch) findViewById(R.id.switch_enable_debugging);
+        toggleDebuggingButton = (ToggleButton) findViewById(R.id.switch_enable_debugging);
         connectedView = findViewById(R.id.view_connected);
         instructionsView = findViewById(R.id.view_instructions);
         connectCommandTextView = (TextView) findViewById(R.id.text_connect_command);
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                             ? getString(R.string.could_not_enable)
                             : getString(R.string.could_not_disable);
                     Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
-                    enableSwitch.setChecked(isActuallyEnabled);
+                    toggleDebuggingButton.setChecked(isActuallyEnabled);
                 }
             }
         };
@@ -136,9 +136,9 @@ public class MainActivity extends AppCompatActivity {
         updateInstructions(isEnabled);
         updateStatus();
 
-        enableSwitch.setOnCheckedChangeListener(null);
-        enableSwitch.setChecked(isEnabled);
-        enableSwitch.setOnCheckedChangeListener(enableSwitchChangeListener);
+        toggleDebuggingButton.setOnCheckedChangeListener(null);
+        toggleDebuggingButton.setChecked(isEnabled);
+        toggleDebuggingButton.setOnCheckedChangeListener(enableSwitchChangeListener);
 
         networkStateChangedReceiver = new BroadcastReceiver() {
             @Override
@@ -168,9 +168,9 @@ public class MainActivity extends AppCompatActivity {
                 boolean isEnabled =
                         intent.getBooleanExtra(DebugStatusService.EXTRA_IS_ENABLED, false);
                 updateInstructions(isEnabled);
-                enableSwitch.setOnCheckedChangeListener(null);
-                enableSwitch.setChecked(isEnabled);
-                enableSwitch.setOnCheckedChangeListener(enableSwitchChangeListener);
+                toggleDebuggingButton.setOnCheckedChangeListener(null);
+                toggleDebuggingButton.setChecked(isEnabled);
+                toggleDebuggingButton.setOnCheckedChangeListener(enableSwitchChangeListener);
             }
         };
         registerReceiver(debugStatusChangedReceiver,

@@ -3,6 +3,7 @@
 
     <!-- Main screen -->
     <string name="enable_debugging">Enable debugging over Wi-Fi</string>
+    <string name="disable_debugging">Disable debugging over Wi-Fi</string>
     <string name="could_not_enable">Could not enable Wi-Fi debugging</string>
     <string name="could_not_disable">Could not disable Wi-Fi debugging</string>
     <string name="run_command">To connect to this device run the following command on your development machine:</string>

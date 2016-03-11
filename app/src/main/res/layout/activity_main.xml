@@ -15,11 +15,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <Switch
+        <ToggleButton
             android:id="@+id/switch_enable_debugging"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/enable_debugging" />
+            android:layout_marginLeft="-4dp"
+            android:layout_marginRight="-4dp"
+            android:textOn="@string/disable_debugging"
+            android:textOff="@string/enable_debugging" />
 
         <RelativeLayout
             android:id="@+id/view_connected"
