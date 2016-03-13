@@ -97,9 +97,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        Log.i(TAG, "Starting status update service");
-        startService(new Intent(this, DebugStatusService.class));
-
         Shell.getShell().setLoggingEnabled(true);
         Shell.getShell().setLogPriority(Log.DEBUG);
     }
@@ -222,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateStatus() {
+        Log.i(TAG, "Starting status update service");
         startService(new Intent(this, DebugStatusService.class));
     }
 }
