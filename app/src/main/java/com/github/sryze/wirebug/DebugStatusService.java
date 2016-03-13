@@ -19,7 +19,6 @@ package com.github.sryze.wirebug;
 
 import android.app.KeyguardManager;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -39,7 +38,7 @@ public class DebugStatusService extends Service {
             "com.github.sryze.wirebug.debugstatus.extra.IS_ENABLED";
 
     private static final String TAG = "DebugStatusService";
-    private static final int STATUS_NOTIFICATION = 0;
+    private static final int STATUS_NOTIFICATION_ID = 1;
     private static final long STATUS_UPDATE_INTERVAL = 5000;
 
     private boolean isEnabled;
@@ -127,8 +126,6 @@ public class DebugStatusService extends Service {
         statusChangedIntent.putExtra(EXTRA_IS_ENABLED, isEnabled);
         sendBroadcast(statusChangedIntent);
 
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (isEnabled) {
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -143,9 +140,9 @@ public class DebugStatusService extends Service {
                     .setVisibility(Notification.VISIBILITY_PUBLIC)
                     .build();
             notification.flags |= Notification.FLAG_NO_CLEAR;
-            notificationManager.notify(STATUS_NOTIFICATION, notification);
+            startForeground(STATUS_NOTIFICATION_ID, notification);
         } else {
-            notificationManager.cancel(STATUS_NOTIFICATION);
+            stopForeground(true);
         }
     }
 }
