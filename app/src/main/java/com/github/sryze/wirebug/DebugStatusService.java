@@ -77,13 +77,11 @@ public class DebugStatusService extends Service {
             Intent updateStatusIntent =
                     new Intent(DebugStatusService.this, DebugStatusService.class);
             updateStatusIntent.setAction(ACTION_UPDATE_STATUS);
-
             PendingIntent alarmPendingIntent = PendingIntent.getService(
                     DebugStatusService.this,
                     0,
                     updateStatusIntent,
                     PendingIntent.FLAG_CANCEL_CURRENT);
-
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
             alarmManager.cancel(alarmPendingIntent);
             alarmManager.set(
@@ -138,7 +136,7 @@ public class DebugStatusService extends Service {
             }
         } else {
             if (wakeLock != null && wakeLock.isHeld()) {
-                Log.i(TAG, "Release the wake lock");
+                Log.i(TAG, "Releasing the wake lock");
                 wakeLock.release();
             }
         }
