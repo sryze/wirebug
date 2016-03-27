@@ -17,6 +17,7 @@
 
 package com.github.sryze.wirebug;
 
+import android.app.AlarmManager;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -25,16 +26,19 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 public class DebugStatusService extends Service {
-    public static final String ACTION_DEBUG_STATUS_CHANGED =
-            "com.github.sryze.wirebug.debugstatus.action.DEBUG_STATUS_CHANGED";
+    public static final String ACTION_UPDATE_STATUS =
+            "com.github.sryze.wirebug.debugstatus.action.UPDATE_STATUS";
+    public static final String ACTION_STATUS_CHANGED =
+            "com.github.sryze.wirebug.debugstatus.action.STATUS_CHANGED";
     public static final String EXTRA_IS_ENABLED =
             "com.github.sryze.wirebug.debugstatus.extra.IS_ENABLED";
 
@@ -42,10 +46,22 @@ public class DebugStatusService extends Service {
     private static final int STATUS_NOTIFICATION_ID = 1;
     private static final long STATUS_UPDATE_INTERVAL = 5000;
 
-    private boolean isEnabled;
-    private Handler autoUpdateHandler = new Handler();
+    private boolean isCurrentlyEnabled;
     private PowerManager.WakeLock wakeLock;
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        Log.d(TAG, "Service is created");
+
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(
+                PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE,
+                TAG);
+    }
+
+    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -53,25 +69,28 @@ public class DebugStatusService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "Service is starting");
+        if (intent != null
+                && intent.getAction() != null
+                && intent.getAction().equals(ACTION_UPDATE_STATUS)) {
+            updateStatus();
 
-        new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TAG, "Performing automatic status update");
-                updateStatus();
-                autoUpdateHandler.removeCallbacksAndMessages(null);
-                autoUpdateHandler.postDelayed(this, STATUS_UPDATE_INTERVAL);
-            }
-        }.run();
+            Intent updateStatusIntent =
+                    new Intent(DebugStatusService.this, DebugStatusService.class);
+            updateStatusIntent.setAction(ACTION_UPDATE_STATUS);
 
-        if (wakeLock == null) {
-            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-            wakeLock = powerManager.newWakeLock(
-                    PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE,
-                    TAG);
+            PendingIntent alarmPendingIntent = PendingIntent.getService(
+                    DebugStatusService.this,
+                    0,
+                    updateStatusIntent,
+                    PendingIntent.FLAG_CANCEL_CURRENT);
+
+            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            alarmManager.cancel(alarmPendingIntent);
+            alarmManager.set(
+                    AlarmManager.ELAPSED_REALTIME,
+                    SystemClock.elapsedRealtime() + STATUS_UPDATE_INTERVAL,
+                    alarmPendingIntent);
         }
-
         return START_STICKY;
     }
 
@@ -79,19 +98,21 @@ public class DebugStatusService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        Log.d(TAG, "Service is being destroyed");
-
-        if (wakeLock.isHeld()) {
-            Log.i(TAG, "Releasing wake lock");
+        if (wakeLock != null && wakeLock.isHeld()) {
+            Log.i(TAG, "Releasing the wake lock");
             wakeLock.release();
         }
+
+        Log.d(TAG, "Service is destroyed");
     }
 
     private void updateStatus() {
+        Log.i(TAG, "Performing a status update...");
+
         KeyguardManager keyguardManager =
                 (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
         if (keyguardManager.inKeyguardRestrictedInputMode()) {
-            Log.d(TAG, "Screen is locked");
+            Log.d(TAG, "Screen appears to be locked");
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             if (preferences.getBoolean("disable_on_lock", false)) {
                 Log.i(TAG, "Disabling debugging because disable_on_lock is true");
@@ -99,31 +120,32 @@ public class DebugStatusService extends Service {
             }
         }
 
+
         boolean isEnabled = DebugManager.isTcpDebuggingEnabled();
-        if (isEnabled == this.isEnabled) {
-            Log.i(TAG, "Status unchanged");
+        if (isEnabled == isCurrentlyEnabled) {
+            Log.i(TAG, "Status is unchanged");
             return;
         }
 
-        Log.i(TAG, String.format("Updating status to %s", isEnabled ? "enabled" : "disabled"));
-        this.isEnabled = isEnabled;
+        isCurrentlyEnabled = isEnabled;
+        Log.i(TAG, String.format("Status is changed to %s", isEnabled ? "enabled" : "disabled"));
 
         if (isEnabled) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             if (preferences.getBoolean("stay_awake", false)) {
                 if (wakeLock != null && !wakeLock.isHeld()) {
-                    Log.i(TAG, "Acquiring wake lock because stay_awake is true");
+                    Log.i(TAG, "Acquiring a wake lock because stay_awake is true");
                     wakeLock.acquire();
                 }
             }
         } else {
-            if (wakeLock.isHeld()) {
-                Log.i(TAG, "Releasing wake lock");
+            if (wakeLock != null && wakeLock.isHeld()) {
+                Log.i(TAG, "Release the wake lock");
                 wakeLock.release();
             }
         }
 
-        Intent statusChangedIntent = new Intent(ACTION_DEBUG_STATUS_CHANGED);
+        Intent statusChangedIntent = new Intent(ACTION_STATUS_CHANGED);
         statusChangedIntent.putExtra(EXTRA_IS_ENABLED, isEnabled);
         sendBroadcast(statusChangedIntent);
 
@@ -145,6 +167,7 @@ public class DebugStatusService extends Service {
             notification.flags |= Notification.FLAG_NO_CLEAR;
             notificationManager.notify(STATUS_NOTIFICATION_ID, notification);
         } else {
+            Log.d(TAG, "Canceling the notification");
             notificationManager.cancel(STATUS_NOTIFICATION_ID);
         }
     }

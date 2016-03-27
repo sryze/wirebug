@@ -84,10 +84,13 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 DebugManager.setTcpDebuggingEnabled(isChecked);
                 boolean isActuallyEnabled = DebugManager.isTcpDebuggingEnabled();
+                Log.d(TAG, "is actually enabled: " + isActuallyEnabled);
                 if (isChecked == isActuallyEnabled) {
                     updateInstructions(isChecked);
                     updateStatus();
                 } else {
+                    Log.i(TAG, String.format(
+                            "Could NOT %s debugging", isChecked ? "enable" : "disable"));
                     String toastText = isChecked
                             ? getString(R.string.could_not_enable)
                             : getString(R.string.could_not_disable);
@@ -171,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         registerReceiver(debugStatusChangedReceiver,
-                new IntentFilter(DebugStatusService.ACTION_DEBUG_STATUS_CHANGED));
+                new IntentFilter(DebugStatusService.ACTION_STATUS_CHANGED));
     }
 
     @Override
@@ -219,7 +222,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateStatus() {
-        Log.i(TAG, "Starting status update service");
-        startService(new Intent(this, DebugStatusService.class));
+        Intent intent = new Intent(this, DebugStatusService.class);
+        intent.setAction(DebugStatusService.ACTION_UPDATE_STATUS);
+        startService(intent);
     }
 }
