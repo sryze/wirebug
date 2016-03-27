@@ -130,13 +130,11 @@ public class DebugStatusService extends Service {
         isCurrentlyEnabled = isEnabled;
         Log.i(TAG, String.format("Status is changed to %s", isEnabled ? "enabled" : "disabled"));
 
-        if (isEnabled) {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            if (preferences.getBoolean("stay_awake", false)) {
-                if (wakeLock != null && !wakeLock.isHeld()) {
-                    Log.i(TAG, "Acquiring a wake lock because stay_awake is true");
-                    wakeLock.acquire();
-                }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (isEnabled && preferences.getBoolean("stay_awake", false)) {
+            if (wakeLock != null && !wakeLock.isHeld()) {
+                Log.i(TAG, "Acquiring a wake lock because stay_awake is true");
+                wakeLock.acquire();
             }
         } else {
             if (wakeLock != null && wakeLock.isHeld()) {
