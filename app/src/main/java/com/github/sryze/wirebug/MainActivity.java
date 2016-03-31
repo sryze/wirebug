@@ -84,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 DebugManager.setTcpDebuggingEnabled(isChecked);
                 boolean isActuallyEnabled = DebugManager.isTcpDebuggingEnabled();
-                Log.d(TAG, "is actually enabled: " + isActuallyEnabled);
                 if (isChecked == isActuallyEnabled) {
                     updateInstructions(isChecked);
                     updateStatus();
