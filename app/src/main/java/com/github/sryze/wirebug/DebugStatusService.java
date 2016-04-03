@@ -26,6 +26,8 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
@@ -152,10 +154,17 @@ public class DebugStatusService extends Service {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent pendingIntent =
                     PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+            WifiInfo wifiInfo = ((WifiManager) getSystemService(WIFI_SERVICE)).getConnectionInfo();
+            String notificationText = String.format(
+                    getString(R.string.notification_text),
+                    NetworkUtils.getStringFromIpAddress(wifiInfo.getIpAddress()),
+                    wifiInfo.getSSID());
+
             Notification notification = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.ic_notification)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setContentText(getString(R.string.status_enabled))
+                    .setContentTitle(getString(R.string.notification_title))
+                    .setContentText(notificationText)
                     .setContentIntent(pendingIntent)
                     .setCategory(Notification.CATEGORY_STATUS)
                     .setVisibility(Notification.VISIBILITY_PUBLIC)

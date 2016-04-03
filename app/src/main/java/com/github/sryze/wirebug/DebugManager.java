@@ -25,14 +25,6 @@ public class DebugManager {
     private static final String ADB_TCP_PORT_PROPERTY = "service.adb.tcp.port";
     private static final int ADB_TCP_PORT_DEFAULT = 5555;
 
-    public static String getStringFromIpAddress(int ipAddress) {
-        return String.format("%d.%d.%d.%d",
-                ipAddress & 0xFF,
-                (ipAddress >> 8) & 0xFF,
-                (ipAddress >> 16) & 0xFF,
-                (ipAddress >> 24) & 0xFF);
-    }
-
     public static boolean isTcpDebuggingEnabled() {
         return getAdbTcpPort() > 0;
     }

@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
         int ipAddress = wifiInfo.getIpAddress();
         connectCommandTextView.setText(
-                String.format("adb connect %s", DebugManager.getStringFromIpAddress(ipAddress)));
+                String.format("adb connect %s", NetworkUtils.getStringFromIpAddress(ipAddress)));
 
         String ssid = wifiInfo.getSSID();
         wifiNetworkTextView.setText(
