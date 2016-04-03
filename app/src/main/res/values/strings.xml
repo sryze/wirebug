@@ -14,7 +14,8 @@
     <string name="not_rooted">It looks like your device is not rooted. Wirebug will not be able to toggle Wi-Fi debugging.</string>
     <string name="ok">OK</string>
     <string name="notification_title">Wi-Fi debugging is enabled</string>
-    <string name="notification_text">Connect to %1$s on %2$s.</string>
+    <string name="notification_text">Connect to %1$s on %2$s to start debugging.</string>
+    <string name="notification_text_not_connected">Not connected to a Wi-Fi network.</string>
 
     <!-- Settings screen -->
     <string name="title_activity_settings">Settings</string>
