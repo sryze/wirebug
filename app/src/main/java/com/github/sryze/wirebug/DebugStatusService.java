@@ -111,43 +111,23 @@ public class DebugStatusService extends Service {
     private void updateStatus() {
         Log.i(TAG, "Performing a status update...");
 
-        KeyguardManager keyguardManager =
-                (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-        if (keyguardManager.inKeyguardRestrictedInputMode()) {
-            Log.d(TAG, "Screen appears to be locked");
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            if (preferences.getBoolean("disable_on_lock", false)) {
-                Log.i(TAG, "Disabling debugging because disable_on_lock is true");
-                DebugManager.setTcpDebuggingEnabled(false);
-            }
-        }
-
-
         boolean isEnabled = DebugManager.isTcpDebuggingEnabled();
-        if (isEnabled == isCurrentlyEnabled) {
+        if (isEnabled != isCurrentlyEnabled) {
+            Log.i(TAG, String.format(
+                    "Status has changed to %s", isEnabled ? "enabled" : "disabled"));
+            sendStatusChangedBroadcast(isEnabled);
+        } else {
             Log.i(TAG, "Status is unchanged");
-            return;
         }
-
-        isCurrentlyEnabled = isEnabled;
-        Log.i(TAG, String.format("Status is changed to %s", isEnabled ? "enabled" : "disabled"));
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (isEnabled && preferences.getBoolean("stay_awake", false)) {
-            if (wakeLock != null && !wakeLock.isHeld()) {
-                Log.i(TAG, "Acquiring a wake lock because stay_awake is true");
-                wakeLock.acquire();
-            }
-        } else {
-            if (wakeLock != null && wakeLock.isHeld()) {
-                Log.i(TAG, "Releasing the wake lock");
-                wakeLock.release();
-            }
+        KeyguardManager keyguardManager =
+                (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        if (keyguardManager.inKeyguardRestrictedInputMode()
+                && preferences.getBoolean("disable_on_lock", false)) {
+            Log.i(TAG, "Disabling debugging because disable_on_lock is true");
+            DebugManager.setTcpDebuggingEnabled(false);
         }
-
-        Intent statusChangedIntent = new Intent(ACTION_STATUS_CHANGED);
-        statusChangedIntent.putExtra(EXTRA_IS_ENABLED, isEnabled);
-        sendBroadcast(statusChangedIntent);
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -187,5 +167,25 @@ public class DebugStatusService extends Service {
             Log.d(TAG, "Canceling the notification");
             notificationManager.cancel(STATUS_NOTIFICATION_ID);
         }
+
+        if (isEnabled && preferences.getBoolean("stay_awake", false)) {
+            if (wakeLock != null && !wakeLock.isHeld()) {
+                Log.i(TAG, "Acquiring a wake lock because stay_awake is true");
+                wakeLock.acquire();
+            }
+        } else {
+            if (wakeLock != null && wakeLock.isHeld()) {
+                Log.i(TAG, "Releasing the wake lock");
+                wakeLock.release();
+            }
+        }
+
+        isCurrentlyEnabled = isEnabled;
+    }
+
+    private void sendStatusChangedBroadcast(boolean isEnabled) {
+        Intent statusChangedIntent = new Intent(ACTION_STATUS_CHANGED);
+        statusChangedIntent.putExtra(EXTRA_IS_ENABLED, isEnabled);
+        sendBroadcast(statusChangedIntent);
     }
 }
