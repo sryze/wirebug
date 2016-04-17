@@ -27,7 +27,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -155,12 +154,11 @@ public class DebugStatusService extends Service {
                 .setContentIntent(pendingIntent);
 
             if (isConnectedToWifi) {
-                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                 notificationBuilder.setContentText(
                     String.format(
                         getString(R.string.notification_text),
-                        NetworkUtils.getStringFromIpAddress(wifiInfo.getIpAddress()),
-                        wifiInfo.getSSID()));
+                        NetworkUtils.getWifiIpAddressString(wifiManager),
+                        NetworkUtils.getWifiNetworkName(wifiManager)));
             } else {
                 notificationBuilder.setContentText(
                     getString(R.string.notification_text_not_connected));

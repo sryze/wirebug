@@ -27,7 +27,6 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -157,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                         notConnectedView.setVisibility(View.VISIBLE);
                         break;
                 }
-                updateWifiInfo();
+                updateConnectionInfo();
             }
         };
         registerReceiver(networkStateChangedReceiver,
@@ -205,20 +204,17 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateWifiInfo() {
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-
-        int ipAddress = wifiInfo.getIpAddress();
-        connectCommandTextView.setText(
-            String.format("adb connect %s", NetworkUtils.getStringFromIpAddress(ipAddress)));
-
-        String ssid = wifiInfo.getSSID();
-        wifiNetworkTextView.setText(
-            String.format(getString(R.string.wifi_network), ssid));
+    private void updateConnectionInfo() {
+        connectCommandTextView.setText(String.format(
+            "adb connect %s",
+            NetworkUtils.getWifiIpAddressString(wifiManager)));
+        wifiNetworkTextView.setText(String.format(
+            getString(R.string.wifi_network),
+            NetworkUtils.getWifiNetworkName(wifiManager)));
     }
 
     private void updateInstructions(boolean isVisible) {
-        updateWifiInfo();
+        updateConnectionInfo();
         instructionsView.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
     }
 

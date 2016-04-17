@@ -21,18 +21,10 @@ import android.annotation.SuppressLint;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 
 public class NetworkUtils {
-
-    @SuppressLint("DefaultLocale")
-    public static String getStringFromIpAddress(int ipAddress) {
-        return String.format("%d.%d.%d.%d",
-            ipAddress & 0xFF,
-            (ipAddress >> 8) & 0xFF,
-            (ipAddress >> 16) & 0xFF,
-            (ipAddress >> 24) & 0xFF);
-    }
 
     public static boolean isConnectedToWifi(ConnectivityManager connectivityManager) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -52,5 +44,22 @@ public class NetworkUtils {
             }
         }
         return false;
+    }
+
+    public static String getWifiNetworkName(WifiManager wifiManager) {
+        return wifiManager.getConnectionInfo().getSSID();
+    }
+
+    public static String getWifiIpAddressString(WifiManager wifiManager) {
+        return getStringFromIpAddress(wifiManager.getConnectionInfo().getIpAddress());
+    }
+
+    @SuppressLint("DefaultLocale")
+    private static String getStringFromIpAddress(int ipAddress) {
+        return String.format("%d.%d.%d.%d",
+            ipAddress & 0xFF,
+            (ipAddress >> 8) & 0xFF,
+            (ipAddress >> 16) & 0xFF,
+            (ipAddress >> 24) & 0xFF);
     }
 }
