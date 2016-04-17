@@ -57,7 +57,7 @@ public class DebugManager {
             return true;
         } catch (ShellException e) {
             Log.e(TAG, String.format(
-                    "Error setting TCP port (%s): %s", port, e.getMessage()));
+                "Error setting TCP port (%s): %s", port, e.getMessage()));
             return false;
         }
     }

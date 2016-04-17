@@ -56,13 +56,13 @@ public class Shell {
         String line;
 
         BufferedReader stdoutReader =
-                new BufferedReader(new InputStreamReader(process.getInputStream()));
+            new BufferedReader(new InputStreamReader(process.getInputStream()));
         while ((line = stdoutReader.readLine()) != null) {
             outputBuilder.append(line + "\n");
         }
 
         BufferedReader stderrReader =
-                new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            new BufferedReader(new InputStreamReader(process.getErrorStream()));
         while ((line = stderrReader.readLine()) != null) {
             outputBuilder.append(line);
         }
@@ -88,7 +88,7 @@ public class Shell {
     private void logCommand(String command, String output, int exitStatus) {
         if (isLoggingEnabled) {
             Log.println(logPriority, TAG, String.format("$?=%d, %s: %s",
-                    exitStatus, command, output));
+                exitStatus, command, output));
         }
     }
 
@@ -125,6 +125,6 @@ public class Shell {
     }
 
     public String execAsRoot(String command) throws ShellException {
-        return exec(new String[] {"su", "-c", command});
+        return exec(new String[]{"su", "-c", command});
     }
 }
