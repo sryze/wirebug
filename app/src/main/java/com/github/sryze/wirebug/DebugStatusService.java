@@ -148,25 +148,31 @@ public class DebugStatusService extends Service {
             boolean isConnectedToWifi = NetworkUtils.isConnectedToWifi(connectivityManager);
             Log.d(TAG, String.format("Connected to Wi-Fi: %s", isConnectedToWifi ? "yes" : "no"));
 
-            String notificationText;
-            if (isConnectedToWifi) {
-                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                notificationText = String.format(
-                    getString(R.string.notification_text),
-                    NetworkUtils.getStringFromIpAddress(wifiInfo.getIpAddress()),
-                    wifiInfo.getSSID());
-            } else {
-                notificationText = getString(R.string.notification_text_not_connected);
-            }
-
-            Notification notification = new NotificationCompat.Builder(this)
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
+            notificationBuilder
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(getString(R.string.notification_title))
-                .setContentText(notificationText)
-                .setContentIntent(pendingIntent)
-                .setCategory(Notification.CATEGORY_STATUS)
-                .setVisibility(Notification.VISIBILITY_PUBLIC)
-                .build();
+                .setContentIntent(pendingIntent);
+
+            if (isConnectedToWifi) {
+                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                notificationBuilder.setContentText(
+                    String.format(
+                        getString(R.string.notification_text),
+                        NetworkUtils.getStringFromIpAddress(wifiInfo.getIpAddress()),
+                        wifiInfo.getSSID()));
+            } else {
+                notificationBuilder.setContentText(
+                    getString(R.string.notification_text_not_connected));
+            }
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                notificationBuilder
+                    .setCategory(Notification.CATEGORY_STATUS)
+                    .setVisibility(Notification.VISIBILITY_PUBLIC);
+            }
+
+            Notification notification = notificationBuilder.build();
             notification.flags |= Notification.FLAG_NO_CLEAR;
             notificationManager.notify(STATUS_NOTIFICATION_ID, notification);
         } else {

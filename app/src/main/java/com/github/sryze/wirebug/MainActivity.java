@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(R.string.not_rooted)
                 .setPositiveButton(R.string.ok, null)
                 .show();
-            preferences.edit().putBoolean(WARNED_ABOUT_ROOT_KEY, true).commit();
+            preferences.edit().putBoolean(WARNED_ABOUT_ROOT_KEY, true).apply();
         }
     }
 
