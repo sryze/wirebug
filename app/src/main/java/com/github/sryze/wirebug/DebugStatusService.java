@@ -41,6 +41,9 @@ public class DebugStatusService extends Service {
         "com.github.sryze.wirebug.debugstatus.action.UPDATE_STATUS";
     public static final String ACTION_STATUS_CHANGED =
         "com.github.sryze.wirebug.debugstatus.action.STATUS_CHANGED";
+    public static final String ACTION_STOP =
+        "com.github.sryze.wirebug.debugstatus.action.STOP";
+
     public static final String EXTRA_IS_ENABLED =
         "com.github.sryze.wirebug.debugstatus.extra.IS_ENABLED";
 
@@ -86,24 +89,26 @@ public class DebugStatusService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null
-            && intent.getAction() != null
-            && intent.getAction().equals(ACTION_UPDATE_STATUS)) {
-            updateStatus();
-
-            Intent updateStatusIntent =
-                new Intent(DebugStatusService.this, DebugStatusService.class);
-            updateStatusIntent.setAction(ACTION_UPDATE_STATUS);
-            PendingIntent alarmPendingIntent = PendingIntent.getService(
-                DebugStatusService.this,
-                0,
-                updateStatusIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-            alarmManager.cancel(alarmPendingIntent);
-            alarmManager.set(
-                AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + STATUS_UPDATE_INTERVAL,
-                alarmPendingIntent);
+        if (intent != null  && intent.getAction() != null) {
+            if (intent.getAction().equals(ACTION_UPDATE_STATUS)) {
+                updateStatus();
+                Intent updateStatusIntent =
+                    new Intent(DebugStatusService.this, DebugStatusService.class);
+                updateStatusIntent.setAction(ACTION_UPDATE_STATUS);
+                PendingIntent alarmPendingIntent = PendingIntent.getService(
+                    DebugStatusService.this,
+                    0,
+                    updateStatusIntent,
+                    PendingIntent.FLAG_CANCEL_CURRENT);
+                alarmManager.cancel(alarmPendingIntent);
+                alarmManager.set(
+                    AlarmManager.ELAPSED_REALTIME,
+                    SystemClock.elapsedRealtime() + STATUS_UPDATE_INTERVAL,
+                    alarmPendingIntent);
+            } else if (intent.getAction().equals(ACTION_STOP)) {
+                DebugManager.setTcpDebuggingEnabled(false);
+                updateStatus();
+            }
         }
         return START_STICKY;
     }
@@ -139,19 +144,34 @@ public class DebugStatusService extends Service {
         }
 
         if (isEnabled) {
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
             boolean isConnectedToWifi = NetworkUtils.isConnectedToWifi(connectivityManager);
             Log.d(TAG, String.format("Connected to Wi-Fi: %s", isConnectedToWifi ? "yes" : "no"));
+
+            Intent contentIntent = new Intent(this, MainActivity.class);
+            contentIntent.setFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+            Intent stopIntent = new Intent(this, DebugStatusService.class);
+            stopIntent.setAction(ACTION_STOP);
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
             notificationBuilder
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(getString(R.string.notification_title))
-                .setContentIntent(pendingIntent);
+                .setContentIntent(
+                    PendingIntent.getActivity(
+                        this,
+                        0,
+                        contentIntent,
+                        PendingIntent.FLAG_CANCEL_CURRENT))
+                .addAction(
+                    R.drawable.ic_stop,
+                    getString(R.string.notification_action_stop),
+                    PendingIntent.getService(
+                        this,
+                        0,
+                        stopIntent,
+                        PendingIntent.FLAG_CANCEL_CURRENT));
 
             if (isConnectedToWifi) {
                 notificationBuilder.setContentText(
