@@ -3,7 +3,7 @@
     <SwitchPreference
         android:key="disable_on_lock"
         android:title="@string/disable_on_lock"
-        android:summary="@string/disable_on_lock_summary"/>
+        android:summary="@string/disable_on_lock_summary" />
     <SwitchPreference
         android:key="stay_awake"
         android:title="@string/stay_awake"
