@@ -42,9 +42,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import timber.log.Timber;
+
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
     private static final String WARNED_ABOUT_ROOT_KEY = "warned_about_root";
 
     private ToggleButton toggleDebuggingButton;
@@ -91,8 +92,7 @@ public class MainActivity extends AppCompatActivity {
                     updateInstructions(isChecked);
                     updateStatus();
                 } else {
-                    Log.i(TAG, String.format(
-                        "Could NOT %s debugging", isChecked ? "enable" : "disable"));
+                    Timber.i("Could NOT %s debugging", isChecked ? "enable" : "disable");
                     String toastText = isChecked
                         ? getString(R.string.could_not_enable)
                         : getString(R.string.could_not_disable);
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         networkStateChangedReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.d(TAG, "Received network state changed broadcast");
+                Timber.d("Received network state changed broadcast");
                 NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                 switch (networkInfo.getState()) {
                     case CONNECTED:
@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         debugStatusChangedReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.d(TAG, "Received debug state change broadcast");
+                Timber.d("Received debug state change broadcast");
                 boolean isEnabled =
                     intent.getBooleanExtra(DebugStatusService.EXTRA_IS_ENABLED, false);
                 updateInstructions(isEnabled);

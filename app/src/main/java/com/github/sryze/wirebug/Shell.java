@@ -23,9 +23,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import timber.log.Timber;
+
 public class Shell {
 
-    private static final String TAG = "Shell";
     private static Shell globalShell;
 
     private final Runtime runtime;
@@ -87,8 +88,7 @@ public class Shell {
 
     private void logCommand(String command, String output, int exitStatus) {
         if (isLoggingEnabled) {
-            Log.println(logPriority, TAG, String.format("$?=%d, %s: %s",
-                exitStatus, command, output));
+            Timber.log(logPriority, "$?=%d, %s: %s", exitStatus, command, output);
         }
     }
 

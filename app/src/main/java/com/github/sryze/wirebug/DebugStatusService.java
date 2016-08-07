@@ -34,7 +34,8 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
+
+import timber.log.Timber;
 
 public class DebugStatusService extends Service {
     public static final String ACTION_UPDATE_STATUS =
@@ -65,7 +66,7 @@ public class DebugStatusService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        Log.d(TAG, "Service is created");
+        Timber.d("Service is created");
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -118,34 +119,33 @@ public class DebugStatusService extends Service {
         super.onDestroy();
 
         if (wakeLock != null && wakeLock.isHeld()) {
-            Log.i(TAG, "Releasing the wake lock");
+            Timber.i("Releasing the wake lock");
             wakeLock.release();
         }
 
-        Log.d(TAG, "Service is destroyed");
+        Timber.d("Service is destroyed");
     }
 
     private void updateStatus() {
-        Log.i(TAG, "Performing a status update...");
+        Timber.i("Performing a status update...");
 
         boolean isEnabled = DebugManager.isTcpDebuggingEnabled();
         if (isEnabled != isCurrentlyEnabled) {
-            Log.i(TAG, String.format(
-                "Status has changed to %s", isEnabled ? "enabled" : "disabled"));
+            Timber.i("Status has changed to %s", isEnabled ? "enabled" : "disabled");
             sendStatusChangedBroadcast(isEnabled);
         } else {
-            Log.i(TAG, "Status is unchanged");
+            Timber.i("Status is unchanged");
         }
 
         if (keyguardManager.inKeyguardRestrictedInputMode()
             && preferences.getBoolean("disable_on_lock", false)) {
-            Log.i(TAG, "Disabling debugging because disable_on_lock is true");
+            Timber.i("Disabling debugging because disable_on_lock is true");
             DebugManager.setTcpDebuggingEnabled(false);
         }
 
         if (isEnabled) {
             boolean isConnectedToWifi = NetworkUtils.isConnectedToWifi(connectivityManager);
-            Log.d(TAG, String.format("Connected to Wi-Fi: %s", isConnectedToWifi ? "yes" : "no"));
+            Timber.d("Connected to Wi-Fi: %s", isConnectedToWifi ? "yes" : "no");
 
             Intent contentIntent = new Intent(this, MainActivity.class);
             contentIntent.setFlags(
@@ -194,18 +194,18 @@ public class DebugStatusService extends Service {
             notification.flags |= Notification.FLAG_NO_CLEAR;
             notificationManager.notify(STATUS_NOTIFICATION_ID, notification);
         } else {
-            Log.d(TAG, "Canceling the notification");
+            Timber.d("Canceling the notification");
             notificationManager.cancel(STATUS_NOTIFICATION_ID);
         }
 
         if (isEnabled && preferences.getBoolean("stay_awake", false)) {
             if (wakeLock != null && !wakeLock.isHeld()) {
-                Log.i(TAG, "Acquiring a wake lock because stay_awake is true");
+                Timber.i("Acquiring a wake lock because stay_awake is true");
                 wakeLock.acquire();
             }
         } else {
             if (wakeLock != null && wakeLock.isHeld()) {
-                Log.i(TAG, "Releasing the wake lock");
+                Timber.i("Releasing the wake lock");
                 wakeLock.release();
             }
         }

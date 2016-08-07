@@ -17,17 +17,18 @@
 
 package com.github.sryze.wirebug;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
+import android.app.Application;
 
 import timber.log.Timber;
 
-public class BootCompletedReceiver extends BroadcastReceiver {
+public final class WirebugApp extends Application {
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        Timber.i("Starting status update service");
-        context.startService(new Intent(context, DebugStatusService.class));
+    public void onCreate() {
+        super.onCreate();
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        }
     }
 }

@@ -17,11 +17,9 @@
 
 package com.github.sryze.wirebug;
 
-import android.util.Log;
+import timber.log.Timber;
 
 public class DebugManager {
-    private static final String TAG = "DebugManager";
-
     private static final String ADB_TCP_PORT_PROPERTY = "service.adb.tcp.port";
     private static final int ADB_TCP_PORT_DEFAULT = 5555;
 
@@ -31,8 +29,8 @@ public class DebugManager {
 
     public static void setTcpDebuggingEnabled(boolean isEnabled) {
         if (setAdbTcpPort(isEnabled ? ADB_TCP_PORT_DEFAULT : 0)) {
-            Log.i(TAG, "Debugging over TCP is enabled: " + (isEnabled ? "YES" : "NO"));
-            Log.i(TAG, "Restarting ADB daemon (this will kill your debugging session)");
+            Timber.i("Debugging over TCP is enabled: %s", isEnabled ? "YES" : "NO");
+            Timber.i("Restarting ADB daemon (this will kill your debugging session)");
             restartAdbDaemon();
         }
     }
@@ -42,7 +40,7 @@ public class DebugManager {
             String output = Shell.getShell().exec("getprop " + ADB_TCP_PORT_PROPERTY);
             return Integer.parseInt(output.trim());
         } catch (ShellException e) {
-            Log.e(TAG, String.format("Error getting current TCP port: %s", e.getMessage()));
+            Timber.e("Error getting current TCP port: %s", e.getMessage());
         } catch (NumberFormatException e) {
             // OK
         }
@@ -56,8 +54,7 @@ public class DebugManager {
             Shell.getShell().execAsRoot(command);
             return true;
         } catch (ShellException e) {
-            Log.e(TAG, String.format(
-                "Error setting TCP port (%s): %s", port, e.getMessage()));
+            Timber.e("Error setting TCP port (%s): %s", port, e.getMessage());
             return false;
         }
     }
@@ -66,7 +63,7 @@ public class DebugManager {
         try {
             Shell.getShell().execAsRoot("stop adbd; start adbd");
         } catch (ShellException e) {
-            Log.e(TAG, String.format("Error restarting ADB daemon: %s", e.getMessage()));
+            Timber.e("Error restarting ADB daemon: %s", e.getMessage());
         }
     }
 }
