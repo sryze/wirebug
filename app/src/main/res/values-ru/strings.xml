@@ -5,7 +5,7 @@
     <string name="enable_debugging">Включить отладку через Wi-Fi</string>
     <string name="disable_debugging">Отключить отладку через Wi-Fi</string>
     <string name="could_not_enable">Не удалось включить отладку через Wi-Fi</string>
-    <string name="could_not_disable">Не удалось выключить отладку через Wi-Fi</string>
+    <string name="could_not_disable">Не удалось отключить отладку через Wi-Fi</string>
     <string name="run_command">Выполните следующую команду на вашем компьютере для подключения к данному устройству:</string>
     <string name="wifi_network">А также убедитесь, что компьютер и устройство подключены к одной и той же сети (на данный момент %s).</string>
     <string name="good_luck">Удачи!</string>
@@ -16,14 +16,14 @@
 
     <!-- Settings screen -->
     <string name="title_activity_settings">Настройки</string>
-    <string name="disable_on_lock">Выключать при блокировке экрана</string>
+    <string name="disable_on_lock">Отключать при блокировке экрана</string>
     <string name="disable_on_lock_summary">Автоматически выключать отладку, когда экран устройства блокируется</string>
     <string name="stay_awake">Не выключать экран</string>
     <string name="stay_awake_summary">Предотвращать автоматическое отключение экрана пока отладка включена</string>
 
     <!-- Notification -->
-    <string name="notification_title">Отладка по Wi-Fi ключена</string>
-    <string name="notification_text">Подключитесь к %1$s on %2$s для отладки.</string>
-    <string name="notification_text_not_connected">Не подключены к Wi-Fi.</string>
+    <string name="notification_title">Отладка по Wi-Fi включена</string>
+    <string name="notification_text">Подключитесь к %1$s в сети %2$s для отладки.</string>
+    <string name="notification_text_not_connected">Нет подключения к Wi-Fi.</string>
     <string name="notification_action_stop">Остановить отладку</string>
 </resources>
