@@ -11,7 +11,7 @@
     <string name="good_luck">Good luck!</string>
     <string name="not_connected">You are not connected to a Wi-Fi network.</string>
     <string name="warning">Warning</string>
-    <string name="not_rooted">It looks like your device is not rooted. Wirebug will not be able to toggle Wi-Fi debugging.</string>
+    <string name="not_rooted">It looks like your device is not rooted. Wirebug will not be able to toggle Wi-Fi debugging (but it will show the status).</string>
     <string name="ok">OK</string>
 
     <!-- Settings screen -->
