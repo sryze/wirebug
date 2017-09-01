@@ -17,6 +17,8 @@
 
 package com.github.sryze.wirebug;
 
+import java.util.Locale;
+
 import timber.log.Timber;
 
 public class DebugManager {
@@ -49,7 +51,7 @@ public class DebugManager {
 
     public static boolean setAdbTcpPort(int port) {
         try {
-            String portArg = port > 0 ? String.format("%d", port) : "\"\"";
+            String portArg = port > 0 ? String.format(Locale.getDefault(), "%d", port) : "\"\"";
             String command = String.format("setprop %s %s", ADB_TCP_PORT_PROPERTY, portArg);
             Shell.getShell().execAsRoot(command);
             return true;

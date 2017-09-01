@@ -76,11 +76,11 @@ public class MainActivity extends AppCompatActivity {
             setTaskDescription(taskDescription);
         }
 
-        toggleDebuggingButton = (ToggleButton) findViewById(R.id.switch_enable_debugging);
+        toggleDebuggingButton = findViewById(R.id.switch_enable_debugging);
         connectedView = findViewById(R.id.view_connected);
         instructionsView = findViewById(R.id.view_instructions);
-        connectCommandTextView = (TextView) findViewById(R.id.text_connect_command);
-        wifiNetworkTextView = (TextView) findViewById(R.id.text_wifi_network);
+        connectCommandTextView = findViewById(R.id.text_connect_command);
+        wifiNetworkTextView = findViewById(R.id.text_wifi_network);
         notConnectedView = findViewById(R.id.view_not_connected);
 
         enableSwitchChangeListener = new CompoundButton.OnCheckedChangeListener() {
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
     }
 
     @Override
