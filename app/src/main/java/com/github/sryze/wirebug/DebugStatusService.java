@@ -39,14 +39,14 @@ import timber.log.Timber;
 
 public class DebugStatusService extends Service {
     public static final String ACTION_UPDATE_STATUS =
-        "com.github.sryze.wirebug.debugstatus.action.UPDATE_STATUS";
+            "com.github.sryze.wirebug.debugstatus.action.UPDATE_STATUS";
     public static final String ACTION_STATUS_CHANGED =
-        "com.github.sryze.wirebug.debugstatus.action.STATUS_CHANGED";
+            "com.github.sryze.wirebug.debugstatus.action.STATUS_CHANGED";
     public static final String ACTION_STOP =
-        "com.github.sryze.wirebug.debugstatus.action.STOP";
+            "com.github.sryze.wirebug.debugstatus.action.STOP";
 
     public static final String EXTRA_IS_ENABLED =
-        "com.github.sryze.wirebug.debugstatus.extra.IS_ENABLED";
+            "com.github.sryze.wirebug.debugstatus.extra.IS_ENABLED";
 
     private static final String TAG = "DebugStatusService";
     private static final int STATUS_NOTIFICATION_ID = 1;
@@ -72,9 +72,14 @@ public class DebugStatusService extends Service {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        if (powerManager == null) {
+            Timber.e("Not able to access PowerManager");
+            return;
+        }
+
         wakeLock = powerManager.newWakeLock(
-            PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE,
-            TAG);
+                PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE,
+                TAG);
 
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -87,35 +92,36 @@ public class DebugStatusService extends Service {
     private NotificationCompat.Builder createNotificationBuilder() {
         Intent contentIntent = new Intent(this, MainActivity.class);
         contentIntent.setFlags(
-            Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         Intent stopIntent = new Intent(this, DebugStatusService.class);
         stopIntent.setAction(ACTION_STOP);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this,
+                NotificationCompat.CATEGORY_SERVICE);
         notificationBuilder
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(getString(R.string.notification_title))
-            .setContentIntent(
-                PendingIntent.getActivity(
-                    this,
-                    0,
-                    contentIntent,
-                    PendingIntent.FLAG_CANCEL_CURRENT))
-            .addAction(
-                R.drawable.ic_stop,
-                getString(R.string.notification_action_stop),
-                PendingIntent.getService(
-                    this,
-                    0,
-                    stopIntent,
-                    PendingIntent.FLAG_CANCEL_CURRENT))
-            .setOnlyAlertOnce(true);
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(getString(R.string.notification_title))
+                .setContentIntent(
+                        PendingIntent.getActivity(
+                                this,
+                                0,
+                                contentIntent,
+                                PendingIntent.FLAG_CANCEL_CURRENT))
+                .addAction(
+                        R.drawable.ic_stop,
+                        getString(R.string.notification_action_stop),
+                        PendingIntent.getService(
+                                this,
+                                0,
+                                stopIntent,
+                                PendingIntent.FLAG_CANCEL_CURRENT))
+                .setOnlyAlertOnce(true);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder
-                .setCategory(Notification.CATEGORY_STATUS)
-                .setVisibility(Notification.VISIBILITY_PUBLIC);
+                    .setCategory(Notification.CATEGORY_STATUS)
+                    .setVisibility(Notification.VISIBILITY_PUBLIC);
         }
 
         return notificationBuilder;
@@ -129,22 +135,22 @@ public class DebugStatusService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null  && intent.getAction() != null) {
+        if (intent != null && intent.getAction() != null) {
             if (intent.getAction().equals(ACTION_UPDATE_STATUS)) {
                 updateStatus();
                 Intent updateStatusIntent =
-                    new Intent(DebugStatusService.this, DebugStatusService.class);
+                        new Intent(DebugStatusService.this, DebugStatusService.class);
                 updateStatusIntent.setAction(ACTION_UPDATE_STATUS);
                 PendingIntent alarmPendingIntent = PendingIntent.getService(
-                    DebugStatusService.this,
-                    0,
-                    updateStatusIntent,
-                    PendingIntent.FLAG_CANCEL_CURRENT);
+                        DebugStatusService.this,
+                        0,
+                        updateStatusIntent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
                 alarmManager.cancel(alarmPendingIntent);
                 alarmManager.set(
-                    AlarmManager.ELAPSED_REALTIME,
-                    SystemClock.elapsedRealtime() + STATUS_UPDATE_INTERVAL,
-                    alarmPendingIntent);
+                        AlarmManager.ELAPSED_REALTIME,
+                        SystemClock.elapsedRealtime() + STATUS_UPDATE_INTERVAL,
+                        alarmPendingIntent);
             } else if (intent.getAction().equals(ACTION_STOP)) {
                 DebugManager.setTcpDebuggingEnabled(false);
                 updateStatus();
@@ -177,7 +183,7 @@ public class DebugStatusService extends Service {
         }
 
         if (keyguardManager.inKeyguardRestrictedInputMode()
-            && preferences.getBoolean("disable_on_lock", false)) {
+                && preferences.getBoolean("disable_on_lock", false)) {
             Timber.i("Disabling debugging because disable_on_lock is true");
             DebugManager.setTcpDebuggingEnabled(false);
         }
@@ -188,13 +194,13 @@ public class DebugStatusService extends Service {
 
             if (isConnectedToWifi) {
                 notificationBuilder.setContentText(
-                    String.format(
-                        getString(R.string.notification_text),
-                        NetworkUtils.getWifiIpAddressString(wifiManager),
-                        NetworkUtils.getWifiNetworkName(wifiManager)));
+                        String.format(
+                                getString(R.string.notification_text),
+                                NetworkUtils.getWifiIpAddressString(wifiManager),
+                                NetworkUtils.getWifiNetworkName(wifiManager)));
             } else {
                 notificationBuilder.setContentText(
-                    getString(R.string.notification_text_not_connected));
+                        getString(R.string.notification_text_not_connected));
             }
 
             Notification notification = notificationBuilder.build();
@@ -207,8 +213,8 @@ public class DebugStatusService extends Service {
 
         if (isEnabled && preferences.getBoolean("stay_awake", false)) {
             if (wakeLock != null && !wakeLock.isHeld()) {
-                Timber.i("Acquiring a wake lock because stay_awake is true");
-                wakeLock.acquire();
+                Timber.i("Acquiring a wake lock because stay_awake is true. Lock will expire after 1 day.");
+                wakeLock.acquire(86400000);
             }
         } else {
             if (wakeLock != null && wakeLock.isHeld()) {

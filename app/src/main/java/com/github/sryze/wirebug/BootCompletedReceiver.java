@@ -27,7 +27,10 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Timber.i("Starting status update service");
-        context.startService(new Intent(context, DebugStatusService.class));
+        String action = intent.getAction();
+        if (action != null && action.equals(Intent.ACTION_BOOT_COMPLETED)) {
+            Timber.i("Starting status update service");
+            context.startService(new Intent(context, DebugStatusService.class));
+        }
     }
 }
