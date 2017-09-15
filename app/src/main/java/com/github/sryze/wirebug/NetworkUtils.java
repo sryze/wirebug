@@ -17,12 +17,13 @@
 
 package com.github.sryze.wirebug;
 
-import android.annotation.SuppressLint;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+
+import java.util.Locale;
 
 public class NetworkUtils {
 
@@ -31,14 +32,14 @@ public class NetworkUtils {
             for (Network network : connectivityManager.getAllNetworks()) {
                 NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network);
                 if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI
-                    && networkInfo.isConnected()) {
+                        && networkInfo.isConnected()) {
                     return true;
                 }
             }
         } else {
             for (NetworkInfo networkInfo : connectivityManager.getAllNetworkInfo()) {
                 if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI
-                    && networkInfo.isConnected()) {
+                        && networkInfo.isConnected()) {
                     return true;
                 }
             }
@@ -54,12 +55,12 @@ public class NetworkUtils {
         return getStringFromIpAddress(wifiManager.getConnectionInfo().getIpAddress());
     }
 
-    @SuppressLint("DefaultLocale")
     private static String getStringFromIpAddress(int ipAddress) {
-        return String.format("%d.%d.%d.%d",
-            ipAddress & 0xFF,
-            (ipAddress >> 8) & 0xFF,
-            (ipAddress >> 16) & 0xFF,
-            (ipAddress >> 24) & 0xFF);
+        return String.format(Locale.getDefault(),
+                "%d.%d.%d.%d",
+                ipAddress & 0xFF,
+                (ipAddress >> 8) & 0xFF,
+                (ipAddress >> 16) & 0xFF,
+                (ipAddress >> 24) & 0xFF);
     }
 }

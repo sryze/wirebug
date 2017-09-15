@@ -17,8 +17,6 @@
 
 package com.github.sryze.wirebug;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.NavUtils;
@@ -38,9 +36,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
 
         getFragmentManager()
-            .beginTransaction()
-            .replace(R.id.fragment_container, new SettingsFragment())
-            .commit();
+                .beginTransaction()
+                .replace(R.id.fragment_container, new SettingsFragment())
+                .commit();
     }
 
     @Override
@@ -53,7 +51,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class SettingsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {

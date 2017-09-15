@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Wirebug</string>
+
+    <!-- Main screen -->
+    <string name="enable_debugging">Activer le débogage Wi-Fi</string>
+    <string name="disable_debugging">Désactiver le débogage Wi-Fi</string>
+    <string name="could_not_enable">Impossible d\'activer le débogage Wi-Fi</string>
+    <string name="could_not_disable">Impossible de désactiver le débogage Wi-Fi</string>
+    <string name="run_command">Pour se connecter à cet appareil, lancez la commande suivante sur votre machine de développement :</string>
+    <string name="wifi_network">Assurez vous également que vos appareils sont sur le même réseau Wi-Fi (%s).</string>
+    <string name="good_luck">Bonne chance !</string>
+    <string name="not_connected">Vous n\'êtes pas connecté à un réseau Wi-Fi</string>
+    <string name="warning">Attention</string>
+    <string name="not_rooted">Il semblerait que votre appareil ne soit pas rooté. Wirebug ne sera pas en mesure d\'activer le débogage Wi-Fi (mais il affichera son statut).</string>
+    <string name="ok">OK</string>
+
+    <!-- Settings screen -->
+    <string name="title_activity_settings">Paramètres</string>
+    <string name="disable_on_lock">Désactiver l\'écran de verrouillage</string>
+    <string name="disable_on_lock_summary">Désactiver automatiquement le débogage quand l\'écran est verrouillé</string>
+    <string name="stay_awake">Rester actif</string>
+    <string name="stay_awake_summary">Garder l\'écran allumé pendant le débogage</string>
+
+    <!-- Notification -->
+    <string name="notification_title">Débogage Wi-Fi activé</string>
+    <string name="notification_text">Connectez vous à %1$s sur %2$s pour commencer à déboger.</string>
+    <string name="notification_text_not_connected">Vous n\'êtes connecté à aucun réseau Wi-Fi</string>
+    <string name="notification_action_stop">Arrêter de déboger</string>
+</resources>
