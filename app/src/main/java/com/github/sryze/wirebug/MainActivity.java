@@ -70,9 +70,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(
-                    getString(R.string.app_name),
-                    BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher),
-                    ContextCompat.getColor(this, R.color.colorTaskDescription));
+                getString(R.string.app_name),
+                BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher),
+                ContextCompat.getColor(this, R.color.colorTaskDescription));
             setTaskDescription(taskDescription);
         }
 
@@ -94,8 +94,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Timber.i("Could NOT %s debugging", isChecked ? "enable" : "disable");
                     String toastText = isChecked
-                            ? getString(R.string.could_not_enable)
-                            : getString(R.string.could_not_disable);
+                        ? getString(R.string.could_not_enable)
+                        : getString(R.string.could_not_disable);
                     Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
                     toggleDebuggingButton.setChecked(isActuallyEnabled);
                 }
@@ -115,12 +115,12 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         if (!preferences.getBoolean(WARNED_ABOUT_ROOT_KEY, false)
-                && !Shell.getShell().canExecAsRoot()) {
+            && !Shell.getShell().canExecAsRoot()) {
             new AlertDialog.Builder(this)
-                    .setTitle(R.string.warning)
-                    .setMessage(R.string.not_rooted)
-                    .setPositiveButton(R.string.ok, null)
-                    .show();
+                .setTitle(R.string.warning)
+                .setMessage(R.string.not_rooted)
+                .setPositiveButton(R.string.ok, null)
+                .show();
             preferences.edit().putBoolean(WARNED_ABOUT_ROOT_KEY, true).apply();
         }
     }
@@ -160,14 +160,14 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         registerReceiver(networkStateChangedReceiver,
-                new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
+            new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION));
 
         debugStatusChangedReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Timber.d("Received debug state change broadcast");
                 boolean isEnabled =
-                        intent.getBooleanExtra(DebugStatusService.EXTRA_IS_ENABLED, false);
+                    intent.getBooleanExtra(DebugStatusService.EXTRA_IS_ENABLED, false);
                 updateInstructions(isEnabled);
                 toggleDebuggingButton.setOnCheckedChangeListener(null);
                 toggleDebuggingButton.setChecked(isEnabled);
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         registerReceiver(debugStatusChangedReceiver,
-                new IntentFilter(DebugStatusService.ACTION_STATUS_CHANGED));
+            new IntentFilter(DebugStatusService.ACTION_STATUS_CHANGED));
     }
 
     @Override
@@ -206,11 +206,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateConnectionInfo() {
         connectCommandTextView.setText(String.format(
-                "adb connect %s",
-                NetworkUtils.getWifiIpAddressString(wifiManager)));
+            "adb connect %s",
+            NetworkUtils.getWifiIpAddressString(wifiManager)));
         wifiNetworkTextView.setText(String.format(
-                getString(R.string.wifi_network),
-                NetworkUtils.getWifiNetworkName(wifiManager)));
+            getString(R.string.wifi_network),
+            NetworkUtils.getWifiNetworkName(wifiManager)));
     }
 
     private void updateInstructions(boolean isVisible) {

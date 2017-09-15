@@ -36,9 +36,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
 
         getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, new SettingsFragment())
-                .commit();
+            .beginTransaction()
+            .replace(R.id.fragment_container, new SettingsFragment())
+            .commit();
     }
 
     @Override

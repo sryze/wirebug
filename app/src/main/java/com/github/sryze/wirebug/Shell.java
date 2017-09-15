@@ -57,13 +57,13 @@ public class Shell {
         String line;
 
         BufferedReader stdoutReader =
-                new BufferedReader(new InputStreamReader(process.getInputStream()));
+            new BufferedReader(new InputStreamReader(process.getInputStream()));
         while ((line = stdoutReader.readLine()) != null) {
             outputBuilder.append(line).append("\n");
         }
 
         BufferedReader stderrReader =
-                new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            new BufferedReader(new InputStreamReader(process.getErrorStream()));
         while ((line = stderrReader.readLine()) != null) {
             outputBuilder.append(line);
         }

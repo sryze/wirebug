@@ -32,14 +32,14 @@ public class NetworkUtils {
             for (Network network : connectivityManager.getAllNetworks()) {
                 NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network);
                 if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI
-                        && networkInfo.isConnected()) {
+                    && networkInfo.isConnected()) {
                     return true;
                 }
             }
         } else {
             for (NetworkInfo networkInfo : connectivityManager.getAllNetworkInfo()) {
                 if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI
-                        && networkInfo.isConnected()) {
+                    && networkInfo.isConnected()) {
                     return true;
                 }
             }
@@ -57,10 +57,10 @@ public class NetworkUtils {
 
     private static String getStringFromIpAddress(int ipAddress) {
         return String.format(Locale.getDefault(),
-                "%d.%d.%d.%d",
-                ipAddress & 0xFF,
-                (ipAddress >> 8) & 0xFF,
-                (ipAddress >> 16) & 0xFF,
-                (ipAddress >> 24) & 0xFF);
+            "%d.%d.%d.%d",
+            ipAddress & 0xFF,
+            (ipAddress >> 8) & 0xFF,
+            (ipAddress >> 16) & 0xFF,
+            (ipAddress >> 24) & 0xFF);
     }
 }
