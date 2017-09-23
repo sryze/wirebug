@@ -37,7 +37,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         getFragmentManager()
             .beginTransaction()
-            .replace(R.id.fragment_container, new SettingsFragment())
+            .replace(R.id.settings_fragment_container, new SettingsFragment())
             .commit();
     }
 
