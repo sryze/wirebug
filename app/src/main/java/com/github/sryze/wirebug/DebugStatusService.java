@@ -97,8 +97,7 @@ public class DebugStatusService extends Service {
         Intent stopIntent = new Intent(this, DebugStatusService.class);
         stopIntent.setAction(ACTION_STOP);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this,
-            NotificationCompat.CATEGORY_SERVICE);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
         notificationBuilder
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(getString(R.string.notification_title))

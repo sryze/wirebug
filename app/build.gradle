@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 25
     buildToolsVersion '26.0.1'
 
     defaultConfig {
         applicationId "com.github.sryze.wirebug"
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion 25
         versionCode 101
         versionName "1.0.1"
     }
@@ -25,7 +25,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile "com.android.support:appcompat-v7:26.1.0"
-    compile "com.android.support:support-v4:26.1.0"
+    compile "com.android.support:appcompat-v7:25.3.1"
+    compile "com.android.support:support-v4:25.3.1"
     compile 'com.jakewharton.timber:timber:4.5.1'
 }
