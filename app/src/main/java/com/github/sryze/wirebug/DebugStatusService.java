@@ -58,10 +58,11 @@ public class DebugStatusService extends Service {
     private SharedPreferences preferences;
     private AlarmManager alarmManager;
     private NotificationManager notificationManager;
+    private NotificationCompat.Builder notificationBuilder;
+    private boolean isNotificationActive;
     private KeyguardManager keyguardManager;
     private ConnectivityManager connectivityManager;
     private WifiManager wifiManager;
-    private NotificationCompat.Builder notificationBuilder;
 
     @Override
     public void onCreate() {
@@ -205,15 +206,19 @@ public class DebugStatusService extends Service {
             Notification notification = notificationBuilder.build();
             notification.flags |= Notification.FLAG_NO_CLEAR;
             notificationManager.notify(STATUS_NOTIFICATION_ID, notification);
+            isNotificationActive = true;
         } else {
-            Timber.d("Canceling the notification");
-            notificationManager.cancel(STATUS_NOTIFICATION_ID);
+            if (isNotificationActive) {
+                Timber.d("Cancelling notification");
+                notificationManager.cancel(STATUS_NOTIFICATION_ID);
+                isNotificationActive = false;
+            }
         }
 
         if (isEnabled && preferences.getBoolean("stay_awake", false)) {
             if (wakeLock != null && !wakeLock.isHeld()) {
                 Timber.i("Acquiring a wake lock because stay_awake is true. Lock will expire after 1 day.");
-                wakeLock.acquire(86400000);
+                wakeLock.acquire(24 * 60 * 60 * 1000);
             }
         } else {
             if (wakeLock != null && wakeLock.isHeld()) {
