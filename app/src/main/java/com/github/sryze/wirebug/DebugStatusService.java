@@ -20,6 +20,7 @@ package com.github.sryze.wirebug;
 import android.app.AlarmManager;
 import android.app.KeyguardManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -50,6 +51,7 @@ public class DebugStatusService extends Service {
 
     private static final String TAG = "DebugStatusService";
     private static final int STATUS_NOTIFICATION_ID = 1;
+    private static final String STATUS_NOTIFICATION_CHANNEL_ID = "wirebug_debug_status_channel";
     private static final long STATUS_UPDATE_INTERVAL = 5000;
 
     private boolean isCurrentlyEnabled;
@@ -80,7 +82,7 @@ public class DebugStatusService extends Service {
 
         wakeLock = powerManager.newWakeLock(
             PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE,
-            TAG);
+            "wirebug:stay_awake_while_debugging");
 
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -88,6 +90,13 @@ public class DebugStatusService extends Service {
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         notificationBuilder = createNotificationBuilder();
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel  = new NotificationChannel(
+                STATUS_NOTIFICATION_CHANNEL_ID,
+                "Debugging Status", NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     private NotificationCompat.Builder createNotificationBuilder() {
@@ -98,7 +107,8 @@ public class DebugStatusService extends Service {
         Intent stopIntent = new Intent(this, DebugStatusService.class);
         stopIntent.setAction(ACTION_STOP);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
+        NotificationCompat.Builder notificationBuilder =
+            new NotificationCompat.Builder(this, STATUS_NOTIFICATION_CHANNEL_ID);
         notificationBuilder
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(getString(R.string.notification_title))
@@ -121,7 +131,7 @@ public class DebugStatusService extends Service {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder
                 .setCategory(Notification.CATEGORY_STATUS)
-                .setVisibility(Notification.VISIBILITY_PUBLIC);
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         }
 
         return notificationBuilder;
