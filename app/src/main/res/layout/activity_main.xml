@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,7 +10,6 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.github.sryze.wirebug.MainActivity">
-
     <ToggleButton
         android:id="@+id/switch_enable_debugging"
         android:layout_width="match_parent"
@@ -33,7 +33,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/run_command" />
-
             <TextView
                 android:id="@+id/text_connect_command"
                 android:layout_width="match_parent"
@@ -45,13 +44,11 @@
                 android:textStyle="bold"
                 android:typeface="monospace"
                 tools:text="adb connect 192.168.1.100" />
-
             <TextView
                 android:id="@+id/text_wifi_network"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/wifi_network" />
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -66,5 +63,4 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/not_connected" />
-
 </LinearLayout>
