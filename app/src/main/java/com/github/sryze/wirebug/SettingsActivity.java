@@ -19,8 +19,8 @@ package com.github.sryze.wirebug;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
+import androidx.core.app.NavUtils;
+import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
