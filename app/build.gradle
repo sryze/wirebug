@@ -8,8 +8,8 @@ android {
         applicationId "com.github.sryze.wirebug"
         minSdkVersion 15
         targetSdkVersion 30
-        versionCode 101
-        versionName "1.0.1"
+        versionCode 10100
+        versionName "1.1"
     }
     buildTypes {
         release {
